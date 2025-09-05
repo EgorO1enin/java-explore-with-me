@@ -13,7 +13,6 @@ import ru.practicum.ewm.stats.client.StatsClient;
 public class StatsClientConfiguration {
 
     @Bean
-    @ConfigurationProperties(prefix = "stats.client")
     public StatsClientProperties statsClientProperties() {
         return new StatsClientProperties();
     }
