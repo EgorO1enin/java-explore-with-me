@@ -1,14 +1,56 @@
 services:
-  stats-server:
-    ports:
-      - "9090:9090"
-
   stats-db:
     image: postgres:16.1
-
-  ewm-service:
+    container_name: ewm-stats-db
+    environment:
+      POSTGRES_DB: ewm_stats
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
     ports:
-      - "8080:8080"
+      - "5432:5432"
+    volumes:
+      - stats-db-data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    networks:
+      - ewm-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ewm_stats"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  ewm-db:
-    image: postgres:16.1
+  stats-server:
+    build:
+      context: .
+      dockerfile: ewm-stats/Dockerfile
+    container_name: ewm-stats-service
+    ports:
+      - "9090:9090"
+    depends_on:
+      stats-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/ewm_stats
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRINGDOC_SWAGGER-UI_PATH: /swagger-ui.html
+      SPRINGDOC_API-DOCS_PATH: /api-docs
+      SPRING_PROFILES_ACTIVE: docker
+      JAVA_OPTS: "-Xmx512m -Xms256m"
+    networks:
+      - ewm-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+volumes:
+  stats-db-data:
+
+networks:
+  ewm-network:
+    driver: bridge
