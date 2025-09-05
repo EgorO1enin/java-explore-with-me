@@ -149,10 +149,10 @@ mvn spring-boot:run
 ### Отладка
 ```bash
 # Подключение к контейнеру сервиса
-docker exec -it ewm-server bash
+docker exec -it stats-server bash
 
 # Просмотр переменных окружения
-docker exec ewm-server env
+docker exec stats-server env
 ```
 
 ## 📊 Структура данных
