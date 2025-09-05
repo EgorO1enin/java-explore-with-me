@@ -32,8 +32,8 @@ public class EndpointHit {
     private String ip;
 
     @NotNull(message = "Timestamp cannot be null")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
-    @Schema(description = "Дата и время, когда был совершен запрос к эндпоинту", example = "2022-09-06T11:00:23Z", requiredMode = Schema.RequiredMode.REQUIRED)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "Дата и время, когда был совершен запрос к эндпоинту", example = "2022-09-06 11:00:23", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime timestamp;
 
 }

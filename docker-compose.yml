@@ -24,7 +24,7 @@ services:
     build:
       context: .
       dockerfile: ewm-stats/Dockerfile
-    container_name: ewm-stats-service
+    container_name: ewm-server
     ports:
       - "9090:9090"
     depends_on:

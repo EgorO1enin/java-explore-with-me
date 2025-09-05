@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: ewm-stats-service
+    name: ewm-server
   datasource:
     url: jdbc:postgresql://localhost:5432/ewm_stats
     username: e.olenin
