@@ -1,6 +1,5 @@
 package ru.practicum.ewm.stats.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -34,9 +33,8 @@ public class EndpointHit {
 
     @NotNull(message = "Timestamp cannot be null")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @Schema(description = "Дата и время, когда был совершен запрос к эндпоинту", 
-            example = "2022-09-06T11:00:23.000Z", 
+    @Schema(description = "Дата и время, когда был совершен запрос к эндпоинту",
+            example = "2022-09-06T11:00:23.000Z",
             requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime timestamp;
-
 }
