@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   stats-db:
     image: postgres:16.1
@@ -36,7 +34,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/ewm_stats
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      SPRINGDOC_SWAGGER-UI_PATH: /swagger-ui.html
+      SPRINGDOC_API-DOCS_PATH: /api-docs
       SPRING_PROFILES_ACTIVE: docker
+      JAVA_OPTS: "-Xmx512m -Xms256m"
     networks:
       - ewm-network
     healthcheck:
@@ -46,53 +47,9 @@ services:
       retries: 3
       start_period: 60s
 
-  ewm-service:
-    build:
-      context: .
-      dockerfile: ewm-service/Dockerfile  # Должен быть другой Dockerfile
-    container_name: ewm-main-service
-    ports:
-      - "8080:8080"
-    depends_on:
-      - stats-db
-      - ewm-db
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      STAT_SERVER_URL: http://stats-server:9090
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      - ewm-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
-  ewm-db:
-    image: postgres:16.1
-    container_name: ewm-main-db
-    environment:
-      POSTGRES_DB: ewm
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5433:5432"  # Другой порт для хоста
-    volumes:
-      - ewm-db-data:/var/lib/postgresql/data
-    networks:
-      - ewm-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ewm"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 volumes:
   stats-db-data:
-  ewm-db-data:
 
 networks:
   ewm-network:
