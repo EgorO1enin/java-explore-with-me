@@ -47,9 +47,35 @@ services:
       retries: 3
       start_period: 60s
     restart: unless-stopped
+
   ewm-service:
+    build:
+      context: .
+      dockerfile: ewm-stats/Dockerfile
+    container_name: ewm-stats-service-alt
     ports:
       - "8080:8080"
+    depends_on:
+      stats-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/ewm_stats
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRINGDOC_SWAGGER-UI_PATH: /swagger-ui.html
+      SPRINGDOC_API-DOCS_PATH: /api-docs
+      SPRING_PROFILES_ACTIVE: docker
+      JAVA_OPTS: "-Xmx512m -Xms256m"
+    networks:
+      - ewm-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
   ewm-db:
     image: postgres:16.1
 
