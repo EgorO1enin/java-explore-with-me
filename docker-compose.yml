@@ -20,11 +20,11 @@ services:
       timeout: 5s
       retries: 5
 
-  stats-server:
+  ewm-service:
     build:
       context: .
       dockerfile: ewm-stats/Dockerfile
-    container_name: stats-server
+    container_name: ewm-stats-service
     ports:
       - "9090:9090"
     depends_on:
@@ -47,10 +47,6 @@ services:
       retries: 3
       start_period: 60s
     restart: unless-stopped
-
-  ewm-service:
-    ports:
-      - "8080:8080"
 
   ewm-db:
     image: postgres:16.1
