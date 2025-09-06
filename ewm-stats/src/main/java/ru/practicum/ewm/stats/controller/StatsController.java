@@ -23,11 +23,11 @@ import java.util.List;
 @Tag(name = "Statistics", description = "API для работы со статистикой посещений")
 public class StatsController {
     private final StatsService statsService;
-    
+
     public StatsController(StatsService statsService) {
         this.statsService = statsService;
     }
-    
+
     @PostMapping("/hit")
     @Operation(
         summary = "Сохранение информации о запросе",
@@ -36,7 +36,7 @@ public class StatsController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Информация сохранена"),
         @ApiResponse(
-            responseCode = "400", 
+            responseCode = "400",
             description = "Запрос составлен некорректно",
             content = @Content(schema = @Schema(implementation = String.class))
         )
@@ -47,7 +47,7 @@ public class StatsController {
         statsService.saveHit(endpointHit);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    
+
     @GetMapping("/stats")
     @Operation(
         summary = "Получение статистики по посещениям",
@@ -56,12 +56,12 @@ public class StatsController {
     )
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200", 
+            responseCode = "200",
             description = "Статистика собрана",
             content = @Content(schema = @Schema(implementation = ViewStats.class))
         ),
         @ApiResponse(
-            responseCode = "400", 
+            responseCode = "400",
             description = "Запрос составлен некорректно",
             content = @Content(schema = @Schema(implementation = String.class))
         )
@@ -73,26 +73,26 @@ public class StatsController {
                 example = "2022-09-06 11:00:23"
             )
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-            
+
             @Parameter(
                 description = "Дата и время конца диапазона за который нужно выгрузить статистику (в формате \"yyyy-MM-dd HH:mm:ss\")",
                 required = true,
                 example = "2022-09-06 12:00:23"
             )
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-            
+
             @Parameter(
                 description = "Список URI для которых нужно выгрузить статистику",
                 example = "/events/1"
             )
             @RequestParam(required = false) List<String> uris,
-            
+
             @Parameter(
                 description = "Нужно ли учитывать только уникальные посещения (только с уникальным IP)",
                 example = "false"
             )
             @RequestParam(defaultValue = "false") Boolean unique) {
-        
+
         List<ViewStats> stats = statsService.getStats(start, end, uris, unique);
         return ResponseEntity.ok(stats);
     }
