@@ -49,7 +49,7 @@ services:
 
 
   ewm-service:
-    image: openjdk:17-jdk-slim
+    image: openjdk:21-jdk-slim
     ports:
       - "8080:8080"
     command: sleep infinity  # чтобы контейнер не завершался сразу
