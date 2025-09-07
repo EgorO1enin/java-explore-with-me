@@ -47,9 +47,12 @@ services:
       retries: 3
       start_period: 60s
 
+
   ewm-service:
+    image: openjdk:17-jdk-slim
     ports:
       - "8080:8080"
+    command: sleep infinity  # чтобы контейнер не завершался сразу
 
 
 volumes:
