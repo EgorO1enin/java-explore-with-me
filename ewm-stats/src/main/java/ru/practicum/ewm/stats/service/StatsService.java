@@ -1,5 +1,8 @@
 package ru.practicum.ewm.stats.service;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.stats.dto.EndpointHit;
 import ru.practicum.ewm.stats.dto.ViewStats;
@@ -9,13 +12,11 @@ import ru.practicum.ewm.stats.repository.StatsRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Data
+@RequiredArgsConstructor
 @Service
 public class StatsService {
     private final StatsRepository statsRepository;
-
-    public StatsService(StatsRepository statsRepository) {
-        this.statsRepository = statsRepository;
-    }
 
     public void saveHit(EndpointHit endpointHit) {
         EndpointHitEntityModel entity = new EndpointHitEntityModel();

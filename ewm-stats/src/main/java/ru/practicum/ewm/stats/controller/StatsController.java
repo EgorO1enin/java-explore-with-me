@@ -34,7 +34,7 @@ public class StatsController {
         description = "Сохранение информации о том, что к эндпоинту был запрос"
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Информация сохранена"),
+        @ApiResponse(responseCode = "200", description = "Информация сохранена"),
         @ApiResponse(
             responseCode = "400",
             description = "Запрос составлен некорректно",
