@@ -1,6 +1,5 @@
 package ru.practicum.ewm.stats.service;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
