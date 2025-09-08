@@ -1,20 +1,16 @@
 package ru.practicum.ewm.stats.client.config;
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
-import ru.practicum.ewm.stats.client.StatsClient;
 
 /**
  * Конфигурация клиента статистики
  */
 @Configuration
+@EnableConfigurationProperties(StatsClientProperties.class)
 public class StatsClientConfiguration {
-
-    @Bean
-    public StatsClientProperties statsClientProperties() {
-        return new StatsClientProperties();
-    }
 
     @Bean
     public WebClient statsWebClient(StatsClientProperties properties) {
@@ -23,8 +19,4 @@ public class StatsClientConfiguration {
                 .build();
     }
 
-    @Bean
-    public StatsClient statsClient(WebClient statsWebClient) {
-        return new StatsClient(statsWebClient);
-    }
 }

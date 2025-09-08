@@ -25,6 +25,12 @@ spring:
     date-format: yyyy-MM-dd'T'HH:mm:ss'Z'
     time-zone: UTC
 
+stats:
+  client:
+    url: "http://localhost:9090"
+    connect-timeout: 5000
+    read-timeout: 10000
+
 management:
   endpoints:
     web:
@@ -33,18 +39,6 @@ management:
   endpoint:
     health:
       show-details: always
-
-springdoc:
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-    tryItOutEnabled: true
-    operationsSorter: method
-    tagsSorter: alpha
-    filter: true
-  show-actuator: true
-
 ---
 # Профиль для Docker
 spring:
@@ -70,6 +64,12 @@ spring:
       fail-on-unknown-properties: false
     date-format: yyyy-MM-dd'T'HH:mm:ss'Z'
     time-zone: UTC
+
+stats:
+  client:
+    url: "http://localhost:9090"
+    connect-timeout: 5000
+    read-timeout: 10000
 
 logging:
   level:

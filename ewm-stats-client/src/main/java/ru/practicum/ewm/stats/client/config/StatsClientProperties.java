@@ -13,15 +13,15 @@ public class StatsClientProperties {
     /**
      * URL сервиса статистики
      */
-    private String url = "http://localhost:9090";
+    private String url;
 
     /**
      * Timeout для подключения в миллисекундах
      */
-    private Integer connectTimeout = 5000;
+    private Integer connectTimeout;
 
     /**
      * Timeout для чтения в миллисекундах
      */
-    private Integer readTimeout = 10000;
+    private Integer readTimeout;
 }

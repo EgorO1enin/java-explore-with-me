@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,14 +20,12 @@ import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @Tag(name = "Statistics", description = "API для работы со статистикой посещений")
 public class StatsController {
-    private final StatsService statsService;
 
-    public StatsController(StatsService statsService) {
-        this.statsService = statsService;
-    }
+    private final StatsService statsService;
 
     @PostMapping("/hit")
     @Operation(

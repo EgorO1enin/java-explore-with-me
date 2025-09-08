@@ -1,5 +1,6 @@
 package ru.practicum.ewm.stats.client;
 
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import ru.practicum.ewm.stats.dto.EndpointHit;
 import ru.practicum.ewm.stats.dto.ViewStats;
@@ -11,15 +12,10 @@ import java.util.List;
 /**
  * HTTP клиент для взаимодействия с сервисом статистики
  */
+@Component
 public class StatsClient {
     private final WebClient webClient;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-    public StatsClient(String statsServiceUrl) {
-        this.webClient = WebClient.builder()
-                .baseUrl(statsServiceUrl)
-                .build();
-    }
 
     public StatsClient(WebClient webClient) {
         this.webClient = webClient;
