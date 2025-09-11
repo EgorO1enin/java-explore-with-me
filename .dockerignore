@@ -1,0 +1,42 @@
+# Игнорируем ненужные файлы при сборке Docker образа
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Maven
+target/
+!ewm-stats/target/ewm-stats-*.jar
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+*.md
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Other
+checkstyle.xml
+suppressions.xml
+lombok.config
+
+# Test files
+**/test/
+**/tests/
