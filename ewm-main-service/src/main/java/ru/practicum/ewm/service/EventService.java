@@ -185,8 +185,13 @@ public class EventService {
         
         // Обновляем количество просмотров для каждого события
         for (Event event : events.getContent()) {
-            Long views = statsService.getEventViews(event.getId());
-            event.setViews(views);
+            try {
+                Long views = statsService.getEventViews(event.getId());
+                event.setViews(views);
+            } catch (Exception e) {
+                log.warn("Не удалось получить количество просмотров для события {}: {}", event.getId(), e.getMessage());
+                event.setViews(0L);
+            }
         }
         
         // Если сортировка по просмотрам, пересортируем список после обновления views
@@ -208,8 +213,13 @@ public class EventService {
         }
         
         // Получаем количество просмотров из сервиса статистики
-        Long views = statsService.getEventViews(eventId);
-        event.setViews(views);
+        try {
+            Long views = statsService.getEventViews(eventId);
+            event.setViews(views);
+        } catch (Exception e) {
+            log.warn("Не удалось получить количество просмотров для события {}: {}", eventId, e.getMessage());
+            event.setViews(0L);
+        }
         
         return eventMapper.toEventFullDto(event);
     }
