@@ -22,12 +22,12 @@ public class StatsUtils {
      * @return объект EndpointHit
      */
     public static EndpointHit createEndpointHit(HttpServletRequest request, String appName) {
-        EndpointHit endpointHit = new EndpointHit();
-        endpointHit.setApp(appName);
-        endpointHit.setUri(request.getRequestURI());
-        endpointHit.setIp(getClientIpAddress(request));
-        endpointHit.setTimestamp(LocalDateTime.now());
-        return endpointHit;
+        return EndpointHit.builder()
+                .app(appName)
+                .uri(request.getRequestURI())
+                .ip(getClientIpAddress(request))
+                .timestamp(LocalDateTime.now())
+                .build();
     }
 
     /**

@@ -44,11 +44,12 @@ public class StatsClient {
      * @param timestamp время запроса
      */
     public void saveHit(String app, String uri, String ip, LocalDateTime timestamp) {
-        EndpointHit endpointHit = new EndpointHit();
-        endpointHit.setApp(app);
-        endpointHit.setUri(uri);
-        endpointHit.setIp(ip);
-        endpointHit.setTimestamp(timestamp);
+        EndpointHit endpointHit = EndpointHit.builder()
+                .app(app)
+                .uri(uri)
+                .ip(ip)
+                .timestamp(timestamp)
+                .build();
         saveHit(endpointHit);
     }
 

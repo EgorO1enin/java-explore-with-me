@@ -10,9 +10,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>ewm-stats</artifactId>
-    <name>ewm-stats</name>
-    <description>Сервис статистики для Explore With Me</description>
+    <artifactId>ewm-main-service</artifactId>
+    <name>ewm-main-service</name>
+    <description>Основной сервис для Explore With Me</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -23,6 +23,11 @@
         <dependency>
             <groupId>ru.practicum</groupId>
             <artifactId>ewm-stats-dto</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.practicum</groupId>
+            <artifactId>ewm-stats-client</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -52,6 +57,11 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.5.5.Final</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -74,6 +84,11 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>1.18.32</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>1.5.5.Final</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
