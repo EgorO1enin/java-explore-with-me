@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.dto.request.EventRequestStatusUpdateRequest;
+import ru.practicum.ewm.dto.response.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.dto.response.ParticipationRequestDto;
 import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.exception.ConflictException;
@@ -19,6 +21,7 @@ import ru.practicum.ewm.repository.ParticipationRequestRepository;
 import ru.practicum.ewm.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -126,5 +129,84 @@ public class ParticipationRequestService {
         }
         
         return participationRequestMapper.toParticipationRequestDto(savedRequest);
+    }
+    
+    public List<ParticipationRequestDto> getEventParticipants(Long userId, Long eventId) {
+        log.info("Получение запросов на участие в событии {} пользователя {}", eventId, userId);
+        
+        // Проверяем, что событие принадлежит пользователю
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с ID " + eventId + " не найдено"));
+        
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new BadRequestException("Событие не принадлежит пользователю");
+        }
+        
+        List<ParticipationRequest> requests = participationRequestRepository.findByEventId(eventId);
+        return requests.stream()
+                .map(participationRequestMapper::toParticipationRequestDto)
+                .collect(Collectors.toList());
+    }
+    
+    @Transactional
+    public EventRequestStatusUpdateResult changeRequestStatus(Long userId, Long eventId, 
+                                                             EventRequestStatusUpdateRequest request) {
+        log.info("Изменение статуса запросов для события {} пользователя {}", eventId, userId);
+        
+        // Проверяем, что событие принадлежит пользователю
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с ID " + eventId + " не найдено"));
+        
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new BadRequestException("Событие не принадлежит пользователю");
+        }
+        
+        List<ParticipationRequest> requests = participationRequestRepository.findByEventIdAndIdIn(
+                eventId, request.getRequestIds());
+        
+        if (requests.size() != request.getRequestIds().size()) {
+            throw new BadRequestException("Не все запросы найдены");
+        }
+        
+        List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
+        List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
+        
+        if (request.getStatus() == RequestStatus.CONFIRMED) {
+            // Проверяем лимит участников
+            long confirmedCount = participationRequestRepository.countConfirmedRequestsByEventId(eventId);
+            if (event.getParticipantLimit() > 0 && confirmedCount + requests.size() > event.getParticipantLimit()) {
+                throw new ConflictException("Достигнут лимит участников события");
+            }
+            
+            for (ParticipationRequest participationRequest : requests) {
+                if (participationRequest.getStatus() != RequestStatus.PENDING) {
+                    throw new ConflictException("Можно изменить только запросы в состоянии PENDING");
+                }
+                
+                participationRequest.setStatus(RequestStatus.CONFIRMED);
+                participationRequestRepository.save(participationRequest);
+                confirmedRequests.add(participationRequestMapper.toParticipationRequestDto(participationRequest));
+            }
+            
+            // Обновляем количество подтвержденных заявок
+            event.setConfirmedRequests(event.getConfirmedRequests() + confirmedRequests.size());
+            eventRepository.save(event);
+            
+        } else if (request.getStatus() == RequestStatus.REJECTED) {
+            for (ParticipationRequest participationRequest : requests) {
+                if (participationRequest.getStatus() != RequestStatus.PENDING) {
+                    throw new ConflictException("Можно изменить только запросы в состоянии PENDING");
+                }
+                
+                participationRequest.setStatus(RequestStatus.REJECTED);
+                participationRequestRepository.save(participationRequest);
+                rejectedRequests.add(participationRequestMapper.toParticipationRequestDto(participationRequest));
+            }
+        }
+        
+        return EventRequestStatusUpdateResult.builder()
+                .confirmedRequests(confirmedRequests)
+                .rejectedRequests(rejectedRequests)
+                .build();
     }
 }

@@ -40,7 +40,7 @@ public class PublicCompilationController {
     public ResponseEntity<CompilationDto> getCompilation(
             @Parameter(description = "id подборки") @PathVariable Long compId) {
         log.info("GET /compilations/{} - получение подборки", compId);
-        CompilationDto compilationDto = compilationService.getCompilationById(compId);
+        CompilationDto compilationDto = compilationService.getCompilation(compId);
         return ResponseEntity.ok(compilationDto);
     }
 }

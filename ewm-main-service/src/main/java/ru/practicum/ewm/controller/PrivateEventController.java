@@ -10,11 +10,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.dto.request.NewEventDto;
 import ru.practicum.ewm.dto.request.UpdateEventUserRequest;
 import ru.practicum.ewm.dto.response.EventFullDto;
+import ru.practicum.ewm.dto.response.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.dto.response.EventShortDto;
+import ru.practicum.ewm.dto.response.ParticipationRequestDto;
 import ru.practicum.ewm.service.EventService;
+import ru.practicum.ewm.service.ParticipationRequestService;
 import ru.practicum.ewm.service.StatsService;
 
 import java.time.LocalDateTime;
@@ -28,6 +32,7 @@ import java.util.List;
 public class PrivateEventController {
     
     private final EventService eventService;
+    private final ParticipationRequestService participationRequestService;
     private final StatsService statsService;
     
     @PostMapping
@@ -84,5 +89,33 @@ public class PrivateEventController {
         
         EventFullDto event = eventService.updateUserEvent(userId, eventId, updateEventUserRequest);
         return ResponseEntity.ok(event);
+    }
+    
+    @GetMapping("/{eventId}/requests")
+    @Operation(summary = "Получение информации о запросах на участие в событии текущего пользователя")
+    public ResponseEntity<List<ParticipationRequestDto>> getEventParticipants(
+            @Parameter(description = "ID пользователя") @PathVariable Long userId,
+            @Parameter(description = "ID события") @PathVariable Long eventId,
+            HttpServletRequest request) {
+        log.info("GET /users/{}/events/{}/requests - получение запросов на участие в событии", userId, eventId);
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        
+        List<ParticipationRequestDto> requests = participationRequestService.getEventParticipants(userId, eventId);
+        return ResponseEntity.ok(requests);
+    }
+    
+    @PatchMapping("/{eventId}/requests")
+    @Operation(summary = "Изменение статуса (подтверждена, отменена) заявок на участие в событии текущего пользователя")
+    public ResponseEntity<EventRequestStatusUpdateResult> changeRequestStatus(
+            @Parameter(description = "ID пользователя") @PathVariable Long userId,
+            @Parameter(description = "ID события") @PathVariable Long eventId,
+            @Valid @RequestBody EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest,
+            HttpServletRequest request) {
+        log.info("PATCH /users/{}/events/{}/requests - изменение статуса запросов", userId, eventId);
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        
+        EventRequestStatusUpdateResult result = participationRequestService.changeRequestStatus(
+                userId, eventId, eventRequestStatusUpdateRequest);
+        return ResponseEntity.ok(result);
     }
 }
