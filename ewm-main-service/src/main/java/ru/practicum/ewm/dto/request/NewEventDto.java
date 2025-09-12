@@ -1,7 +1,6 @@
 package ru.practicum.ewm.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,36 +35,32 @@ public class NewEventDto {
     @NotNull
     private Location location;
     
+    @Builder.Default
     private Boolean paid = false;
     
+    @Builder.Default
     private Integer participantLimit = 0;
     
+    @Builder.Default
     private Boolean requestModeration = true;
     
     @NotBlank
     @Size(min = 3, max = 120)
     private String title;
     
-    @JsonCreator
-    public NewEventDto(
-            @JsonProperty("annotation") String annotation,
-            @JsonProperty("category") Long category,
-            @JsonProperty("description") String description,
-            @JsonProperty("eventDate") LocalDateTime eventDate,
-            @JsonProperty("location") Location location,
-            @JsonProperty("paid") Object paid,
-            @JsonProperty("participantLimit") Object participantLimit,
-            @JsonProperty("requestModeration") Object requestModeration,
-            @JsonProperty("title") String title) {
-        this.annotation = annotation;
-        this.category = category;
-        this.description = description;
-        this.eventDate = eventDate;
-        this.location = location;
+    @JsonSetter("paid")
+    public void setPaid(Object paid) {
         this.paid = convertToBoolean(paid);
+    }
+    
+    @JsonSetter("participantLimit")
+    public void setParticipantLimit(Object participantLimit) {
         this.participantLimit = convertToInteger(participantLimit);
+    }
+    
+    @JsonSetter("requestModeration")
+    public void setRequestModeration(Object requestModeration) {
         this.requestModeration = convertToBoolean(requestModeration);
-        this.title = title;
     }
     
     private Boolean convertToBoolean(Object value) {
@@ -89,7 +84,11 @@ public class NewEventDto {
             return (Integer) value;
         }
         if (value instanceof String) {
-            return Integer.parseInt((String) value);
+            try {
+                return Integer.parseInt((String) value);
+            } catch (NumberFormatException e) {
+                return 0;
+            }
         }
         return 0;
     }
