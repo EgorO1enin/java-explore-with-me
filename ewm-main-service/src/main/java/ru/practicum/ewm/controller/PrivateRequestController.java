@@ -77,9 +77,9 @@ public class PrivateRequestController {
             throw new BadRequestException("ID пользователя должен быть указан и больше 0");
         }
         
-        if (eventId == null || eventId <= 0) {
+        if (eventId == null || eventId < 0) {
             log.error("❌ Ошибка валидации: eventId не указан или некорректный: {}", eventId);
-            throw new BadRequestException("ID события должен быть указан и больше 0");
+            throw new BadRequestException("ID события должен быть указан и не может быть отрицательным");
         }
         
         try {

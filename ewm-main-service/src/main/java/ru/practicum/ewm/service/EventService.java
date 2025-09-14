@@ -51,7 +51,11 @@ public class EventService {
     public EventFullDto createEvent(Long userId, NewEventDto newEventDto) {
         log.info("Создание события пользователем {}: {}", userId, newEventDto);
 
-        if (newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
+        LocalDateTime now = LocalDateTime.now();
+        if (newEventDto.getEventDate().isBefore(now)) {
+            throw new BadRequestException("Дата события не может быть в прошлом");
+        }
+        if (newEventDto.getEventDate().isBefore(now.plusHours(2))) {
             throw new BadRequestException("Дата события должна быть не ранее чем через 2 часа от текущего момента");
         }
 
@@ -96,9 +100,14 @@ public class EventService {
             throw new ConflictException("Нельзя изменить опубликованное событие");
         }
 
-        if (updateEventUserRequest.getEventDate() != null &&
-            updateEventUserRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new BadRequestException("Дата события должна быть не ранее чем через 2 часа от текущего момента");
+        if (updateEventUserRequest.getEventDate() != null) {
+            LocalDateTime now = LocalDateTime.now();
+            if (updateEventUserRequest.getEventDate().isBefore(now)) {
+                throw new BadRequestException("Дата события не может быть в прошлом");
+            }
+            if (updateEventUserRequest.getEventDate().isBefore(now.plusHours(2))) {
+                throw new BadRequestException("Дата события должна быть не ранее чем через 2 часа от текущего момента");
+            }
         }
 
         updateEventFields(event, updateEventUserRequest);
@@ -202,9 +211,14 @@ public class EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с ID " + eventId + " не найдено"));
 
-        if (updateEventAdminRequest.getEventDate() != null &&
-            updateEventAdminRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
-            throw new BadRequestException("Дата события должна быть не ранее чем через 1 час от текущего момента");
+        if (updateEventAdminRequest.getEventDate() != null) {
+            LocalDateTime now = LocalDateTime.now();
+            if (updateEventAdminRequest.getEventDate().isBefore(now)) {
+                throw new BadRequestException("Дата события не может быть в прошлом");
+            }
+            if (updateEventAdminRequest.getEventDate().isBefore(now.plusHours(1))) {
+                throw new BadRequestException("Дата события должна быть не ранее чем через 1 час от текущего момента");
+            }
         }
 
         updateEventFields(event, updateEventAdminRequest);
@@ -253,44 +267,74 @@ public class EventService {
                 .filter(id -> id != null && id > 0)
                 .toList() : null;
 
-        Sort sortBy = Sort.by(Sort.Direction.ASC, "eventDate");
-        if (sort == EventSortType.VIEWS) {
-            sortBy = Sort.by(Sort.Direction.DESC, "views");
+        log.info("🔍 Оригинальные параметры: categories={}", categories);
+        log.info("🔧 Отфильтрованные параметры: filteredCategories={}", filteredCategories);
+
+        // Создаем динамический запрос
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Event> query = cb.createQuery(Event.class);
+        Root<Event> root = query.from(Event.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        // Фильтр по состоянию - только опубликованные события
+        predicates.add(cb.equal(root.get("state"), EventState.PUBLISHED));
+
+        // Фильтр по тексту (аннотация или описание)
+        if (text != null && !text.trim().isEmpty()) {
+            String searchText = "%" + text.toLowerCase() + "%";
+            Predicate annotationPredicate = cb.like(cb.lower(root.get("annotation")), searchText);
+            Predicate descriptionPredicate = cb.like(cb.lower(root.get("description")), searchText);
+            predicates.add(cb.or(annotationPredicate, descriptionPredicate));
         }
 
-        Pageable pageable = PageRequest.of(from / size, size, sortBy);
-        Page<Event> events = eventRepository.findPublishedEventsByFilters(
-                text, filteredCategories, paid, rangeStart, rangeEnd, onlyAvailable, pageable);
+        // Фильтр по категориям
+        if (filteredCategories != null && !filteredCategories.isEmpty()) {
+            predicates.add(root.get("category").get("id").in(filteredCategories));
+        }
 
-        // Фильтруем события в коде, если SQL запрос не справляется
-        final String finalText = text;
-        final List<Long> finalCategories = filteredCategories;
-        final Boolean finalPaid = paid;
-        final LocalDateTime finalRangeStart = rangeStart;
-        final LocalDateTime finalRangeEnd = rangeEnd;
-        final Boolean finalOnlyAvailable = onlyAvailable;
+        // Фильтр по платности
+        if (paid != null) {
+            predicates.add(cb.equal(root.get("paid"), paid));
+        }
 
-        List<Event> filteredEvents = events.getContent().stream()
-                .filter(event -> finalText == null ||
-                        event.getAnnotation().toLowerCase().contains(finalText.toLowerCase()) ||
-                        event.getDescription().toLowerCase().contains(finalText.toLowerCase()))
-                .filter(event -> finalCategories == null || finalCategories.isEmpty() ||
-                        finalCategories.contains(event.getCategory().getId()))
-                .filter(event -> finalPaid == null || event.getPaid().equals(finalPaid))
-                .filter(event -> finalRangeStart == null || event.getEventDate().isAfter(finalRangeStart) ||
-                        event.getEventDate().isEqual(finalRangeStart))
-                .filter(event -> finalRangeEnd == null || event.getEventDate().isBefore(finalRangeEnd) ||
-                        event.getEventDate().isEqual(finalRangeEnd))
-                .filter(event -> !finalOnlyAvailable || event.getParticipantLimit() == 0 ||
-                        event.getConfirmedRequests() < event.getParticipantLimit())
-                .collect(java.util.stream.Collectors.toList());
+        // Фильтр по дате начала
+        if (rangeStart != null) {
+            predicates.add(cb.greaterThanOrEqualTo(root.get("eventDate"), rangeStart));
+        }
 
-        // Создаем новый Page с отфильтрованными событиями
-        events = new org.springframework.data.domain.PageImpl<>(
-                filteredEvents, pageable, filteredEvents.size());
+        // Фильтр по дате окончания
+        if (rangeEnd != null) {
+            predicates.add(cb.lessThanOrEqualTo(root.get("eventDate"), rangeEnd));
+        }
+
+        // Фильтр по доступности (только если onlyAvailable = true)
+        if (onlyAvailable) {
+            Predicate noLimitPredicate = cb.equal(root.get("participantLimit"), 0);
+            Predicate hasSpacePredicate = cb.lessThan(root.get("confirmedRequests"), root.get("participantLimit"));
+            predicates.add(cb.or(noLimitPredicate, hasSpacePredicate));
+        }
+
+        query.where(predicates.toArray(new Predicate[0]));
+
+        // Сортировка
+        if (sort == EventSortType.VIEWS) {
+            query.orderBy(cb.desc(root.get("views")));
+        } else {
+            query.orderBy(cb.asc(root.get("eventDate")));
+        }
+
+        List<Event> allEvents = entityManager.createQuery(query).getResultList();
+        log.info("✅ Запрос к базе данных выполнен успешно. Найдено событий: {}", allEvents.size());
+
+        // Реализуем пагинацию вручную
+        int start = from;
+        int end = Math.min(from + size, allEvents.size());
+        List<Event> events = allEvents.subList(start, end);
+        log.info("📄 Применена пагинация: from={}, size={}, result={}", from, size, events.size());
 
         // Обновляем количество просмотров и подтвержденных заявок для каждого события
-        for (Event event : events.getContent()) {
+        for (Event event : events) {
             try {
                 Long views = statsService.getEventViews(event.getId());
                 event.setViews(views);
@@ -305,10 +349,10 @@ public class EventService {
 
         // Если сортировка по просмотрам, пересортируем список после обновления views
         if (sort == EventSortType.VIEWS) {
-            events.getContent().sort((e1, e2) -> Long.compare(e2.getViews(), e1.getViews()));
+            events.sort((e1, e2) -> Long.compare(e2.getViews(), e1.getViews()));
         }
 
-        return eventMapper.toEventShortDtoList(events.getContent());
+        return eventMapper.toEventShortDtoList(events);
     }
 
     public EventFullDto getPublicEvent(Long eventId) {

@@ -82,17 +82,19 @@ public class ParticipationRequestService {
         }
         
         // Создаем заявку
+        // Если participantLimit = 0 (отсутствие ограничения), то модерация не требуется
+        boolean requiresModeration = event.getRequestModeration() && event.getParticipantLimit() > 0;
         ParticipationRequest participationRequest = ParticipationRequest.builder()
                 .created(LocalDateTime.now())
                 .event(event)
                 .requester(requester)
-                .status(event.getRequestModeration() ? RequestStatus.PENDING : RequestStatus.CONFIRMED)
+                .status(requiresModeration ? RequestStatus.PENDING : RequestStatus.CONFIRMED)
                 .build();
         
         ParticipationRequest savedRequest = participationRequestRepository.save(participationRequest);
         
         // Если модерация не требуется, обновляем количество подтвержденных заявок
-        if (!event.getRequestModeration()) {
+        if (!requiresModeration) {
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
             eventRepository.save(event);
         }

@@ -1,5 +1,6 @@
 package ru.practicum.ewm.dto.request;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class UpdateEventAdminRequest {
     @Size(min = 20, max = 7000)
     private String description;
     
+    @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
     private LocalDateTime eventDate;
     
     private Location location;

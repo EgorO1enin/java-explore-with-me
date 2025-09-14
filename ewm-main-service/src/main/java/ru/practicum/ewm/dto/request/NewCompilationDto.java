@@ -15,7 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 public class NewCompilationDto {
     
-    @Size(min = 1, max = 50)
+    @NotBlank(message = "Заголовок подборки не может быть пустым")
+    @Size(min = 1, max = 50, message = "Заголовок подборки должен содержать от 1 до 50 символов")
     private String title;
     
     @Builder.Default
