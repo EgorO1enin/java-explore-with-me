@@ -26,7 +26,7 @@ public class Event {
     
     @NotBlank
     @Size(min = 20, max = 2000)
-    @Column(name = "annotation", nullable = false, length = 2000)
+    @Column(name = "annotation", nullable = false, length = 2000, columnDefinition = "TEXT")
     private String annotation;
     
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,7 +42,7 @@ public class Event {
     
     @NotBlank
     @Size(min = 20, max = 7000)
-    @Column(name = "description", nullable = false, length = 7000)
+    @Column(name = "description", nullable = false, length = 7000, columnDefinition = "TEXT")
     private String description;
     
     @Column(name = "event_date", nullable = false)
