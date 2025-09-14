@@ -1,6 +1,6 @@
 services:
   stats-db:
-    image: postgres:16.1
+    image: postgres:16
     container_name: ewm-stats-db
     environment:
       POSTGRES_DB: ewm_stats

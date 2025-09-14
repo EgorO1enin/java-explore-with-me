@@ -118,8 +118,36 @@ public class EventService {
         log.info("Получение событий администратором с параметрами: users={}, states={}, categories={}, " +
                 "rangeStart={}, rangeEnd={}, from={}, size={}", users, states, categories, rangeStart, rangeEnd, from, size);
         
+        // Фильтруем пустые значения и нули
+        List<Long> filteredUsers = users != null ? users.stream()
+                .filter(id -> id != null && id > 0)
+                .toList() : null;
+        
+        List<Long> filteredCategories = categories != null ? categories.stream()
+                .filter(id -> id != null && id > 0)
+                .toList() : null;
+        
+        log.info("🔍 Оригинальные параметры: users={}, categories={}", users, categories);
+        log.info("🔧 Отфильтрованные параметры: filteredUsers={}, filteredCategories={}", filteredUsers, filteredCategories);
+        
+        if (filteredUsers != null && filteredUsers.isEmpty()) {
+            log.warn("⚠️ Список пользователей пуст после фильтрации");
+        }
+        if (filteredCategories != null && filteredCategories.isEmpty()) {
+            log.warn("⚠️ Список категорий пуст после фильтрации");
+        }
+        
         Pageable pageable = PageRequest.of(from / size, size);
-        Page<Event> events = eventRepository.findEventsByAdminFilters(users, states, categories, rangeStart, rangeEnd, pageable);
+        log.info("📄 Создана пагинация: page={}, size={}", from / size, size);
+        
+        log.info("🔍 Выполняем запрос к базе данных...");
+        Page<Event> events = eventRepository.findEventsByAdminFilters(filteredUsers, states, filteredCategories, rangeStart, rangeEnd, pageable);
+        log.info("✅ Запрос к базе данных выполнен успешно. Найдено событий: {}", events.getTotalElements());
+        
+        // Обновляем количество подтвержденных заявок для всех событий
+        for (Event event : events.getContent()) {
+            updateConfirmedRequests(event.getId());
+        }
         
         return eventMapper.toEventFullDtoList(events.getContent());
     }
@@ -174,6 +202,15 @@ public class EventService {
             rangeStart = LocalDateTime.now();
         }
         
+        if (onlyAvailable == null) {
+            onlyAvailable = false;
+        }
+        
+        // Фильтруем пустые значения и нули для категорий
+        List<Long> filteredCategories = categories != null ? categories.stream()
+                .filter(id -> id != null && id > 0)
+                .toList() : null;
+        
         Sort sortBy = Sort.by(Sort.Direction.ASC, "eventDate");
         if (sort == EventSortType.VIEWS) {
             sortBy = Sort.by(Sort.Direction.DESC, "views");
@@ -181,9 +218,36 @@ public class EventService {
         
         Pageable pageable = PageRequest.of(from / size, size, sortBy);
         Page<Event> events = eventRepository.findPublishedEventsByFilters(
-                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, pageable);
+                text, filteredCategories, paid, rangeStart, rangeEnd, onlyAvailable, pageable);
         
-        // Обновляем количество просмотров для каждого события
+        // Фильтруем события в коде, если SQL запрос не справляется
+        final String finalText = text;
+        final List<Long> finalCategories = filteredCategories;
+        final Boolean finalPaid = paid;
+        final LocalDateTime finalRangeStart = rangeStart;
+        final LocalDateTime finalRangeEnd = rangeEnd;
+        final Boolean finalOnlyAvailable = onlyAvailable;
+        
+        List<Event> filteredEvents = events.getContent().stream()
+                .filter(event -> finalText == null || 
+                        event.getAnnotation().toLowerCase().contains(finalText.toLowerCase()) ||
+                        event.getDescription().toLowerCase().contains(finalText.toLowerCase()))
+                .filter(event -> finalCategories == null || finalCategories.isEmpty() || 
+                        finalCategories.contains(event.getCategory().getId()))
+                .filter(event -> finalPaid == null || event.getPaid().equals(finalPaid))
+                .filter(event -> finalRangeStart == null || event.getEventDate().isAfter(finalRangeStart) || 
+                        event.getEventDate().isEqual(finalRangeStart))
+                .filter(event -> finalRangeEnd == null || event.getEventDate().isBefore(finalRangeEnd) || 
+                        event.getEventDate().isEqual(finalRangeEnd))
+                .filter(event -> !finalOnlyAvailable || event.getParticipantLimit() == 0 || 
+                        event.getConfirmedRequests() < event.getParticipantLimit())
+                .collect(java.util.stream.Collectors.toList());
+        
+        // Создаем новый Page с отфильтрованными событиями
+        events = new org.springframework.data.domain.PageImpl<>(
+                filteredEvents, pageable, filteredEvents.size());
+        
+        // Обновляем количество просмотров и подтвержденных заявок для каждого события
         for (Event event : events.getContent()) {
             try {
                 Long views = statsService.getEventViews(event.getId());
@@ -192,6 +256,9 @@ public class EventService {
                 log.warn("Не удалось получить количество просмотров для события {}: {}", event.getId(), e.getMessage());
                 event.setViews(0L);
             }
+            
+            // Обновляем количество подтвержденных заявок
+            updateConfirmedRequests(event.getId());
         }
         
         // Если сортировка по просмотрам, пересортируем список после обновления views
@@ -221,12 +288,29 @@ public class EventService {
             event.setViews(0L);
         }
         
+        // Обновляем количество подтвержденных заявок
+        updateConfirmedRequests(eventId);
+        
         return eventMapper.toEventFullDto(event);
     }
     
     public Event getEventEntityById(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с ID " + eventId + " не найдено"));
+    }
+    
+    @Transactional
+    public void updateConfirmedRequests(Long eventId) {
+        log.info("Обновление количества подтвержденных заявок для события {}", eventId);
+        
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с ID " + eventId + " не найдено"));
+        
+        Long confirmedCount = eventRepository.countConfirmedRequestsByEventId(eventId);
+        event.setConfirmedRequests(confirmedCount);
+        eventRepository.save(event);
+        
+        log.info("Обновлено количество подтвержденных заявок для события {}: {}", eventId, confirmedCount);
     }
     
     private void updateEventFields(Event event, Object updateRequest) {

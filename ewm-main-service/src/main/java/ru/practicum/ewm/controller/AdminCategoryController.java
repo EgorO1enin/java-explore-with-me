@@ -32,11 +32,26 @@ public class AdminCategoryController {
     public ResponseEntity<CategoryDto> createCategory(
             @Valid @RequestBody NewCategoryDto newCategoryDto,
             HttpServletRequest request) {
-        log.info("POST /admin/categories - создание категории администратором");
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        log.info("📂 POST /admin/categories - создание категории администратором");
+        log.info("📝 Данные категории: name={}", newCategoryDto.getName());
+        log.info("🌐 IP адрес: {}", request.getRemoteAddr());
         
-        CategoryDto category = categoryService.createCategory(newCategoryDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(category);
+        try {
+            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+            log.info("✅ Статистика сохранена");
+        } catch (Exception e) {
+            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
+        }
+        
+        try {
+            CategoryDto category = categoryService.createCategory(newCategoryDto);
+            log.info("✅ Категория создана успешно: id={}, name={}", 
+                    category.getId(), category.getName());
+            return ResponseEntity.status(HttpStatus.CREATED).body(category);
+        } catch (Exception e) {
+            log.error("❌ Ошибка при создании категории: {}", e.getMessage(), e);
+            throw e;
+        }
     }
     
     @PatchMapping("/{catId}")

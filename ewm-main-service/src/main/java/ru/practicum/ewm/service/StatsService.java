@@ -15,30 +15,33 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class StatsService {
-    
+
     private final StatsClient statsClient;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    
+
     public void saveHit(String app, String uri, String ip, LocalDateTime timestamp) {
-        log.info("Сохранение статистики: app={}, uri={}, ip={}, timestamp={}", app, uri, ip, timestamp);
-        
-        EndpointHit endpointHit = new EndpointHit();
-        endpointHit.setApp(app);
-        endpointHit.setUri(uri);
-        endpointHit.setIp(ip);
-        endpointHit.setTimestamp(timestamp);
-        
+        log.info("📊 Сохранение статистики: app={}, uri={}, ip={}, timestamp={}", app, uri, ip, timestamp);
+
         try {
-            statsClient.saveHit(endpointHit);
-            log.info("Статистика успешно сохранена");
+            EndpointHit endpointHit = EndpointHit.builder()
+                    .app(app)
+                    .uri(uri)
+                    .ip(ip)
+                    .timestamp(timestamp)
+                    .build();
+
+            log.info("🔧 Создан EndpointHit: app={}, uri={}, ip={}, timestamp={}", 
+                    endpointHit.getApp(), endpointHit.getUri(), endpointHit.getIp(), endpointHit.getTimestamp());
+            statsClient.saveHit(app, uri, ip, timestamp);
+            log.info("✅ Статистика успешно сохранена");
         } catch (Exception e) {
-            log.error("Ошибка при сохранении статистики: {}", e.getMessage());
+            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage(), e);
         }
     }
-    
+
     public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         log.info("Получение статистики: start={}, end={}, uris={}, unique={}", start, end, uris, unique);
-        
+
         try {
             return statsClient.getStats(start, end, uris, unique);
         } catch (Exception e) {
@@ -46,20 +49,20 @@ public class StatsService {
             return List.of();
         }
     }
-    
+
     public Long getEventViews(Long eventId) {
         log.info("Получение количества просмотров для события {}", eventId);
-        
+
         LocalDateTime start = LocalDateTime.now().minusYears(1);
         LocalDateTime end = LocalDateTime.now();
         List<String> uris = List.of("/events/" + eventId);
-        
+
         List<ViewStats> stats = getStats(start, end, uris, true);
-        
+
         if (stats.isEmpty()) {
             return 0L;
         }
-        
+
         return stats.get(0).getHits();
     }
 }

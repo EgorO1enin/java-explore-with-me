@@ -33,6 +33,7 @@ public interface EventMapper {
     @Mapping(target = "category", source = "category", qualifiedByName = "categoryToDto")
     @Mapping(target = "initiator", source = "initiator", qualifiedByName = "userToShortDto")
     @Mapping(target = "location", expression = "java(new Location(event.getLat(), event.getLon()))")
+    @Mapping(target = "confirmedRequests", source = "confirmedRequests")
     EventFullDto toEventFullDto(Event event);
     
     @Mapping(target = "category", source = "category", qualifiedByName = "categoryToDto")

@@ -1,6 +1,6 @@
 spring:
   application:
-    name: ewm-stats-service
+    name: ewm-main-service
   datasource:
     url: jdbc:postgresql://localhost:5432/ewm_stats
     username: e.olenin
@@ -17,16 +17,19 @@ spring:
   sql:
     init:
       mode: always
-      schema-locations: classpath:init-db/01-init-stats-db.sql
+      schema-locations: classpath:init-db/02-init-main-db.sql
 
 server:
-  port: 9090
+  port: 8080
 
 logging:
   level:
-    ru.practicum.ewm.stats: DEBUG
-    org.springframework.web: DEBUG
+    ru.practicum.ewm: INFO
+    org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.data.jpa: DEBUG
+    org.springframework.transaction: DEBUG
 
 management:
   endpoints:

@@ -47,11 +47,31 @@ public class AdminEventController {
             @Parameter(description = "Количество элементов в наборе") 
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
-        log.info("GET /admin/events - получение событий администратором");
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        log.info("🔍 GET /admin/events - получение событий администратором");
+        log.info("📊 Параметры запроса: users={}, states={}, categories={}, rangeStart={}, rangeEnd={}, from={}, size={}", 
+                users, states, categories, rangeStart, rangeEnd, from, size);
+        log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
         
-        List<EventFullDto> events = eventService.getAdminEvents(users, states, categories, rangeStart, rangeEnd, from, size);
-        return ResponseEntity.ok(events);
+        try {
+            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+            log.info("✅ Статистика сохранена успешно");
+        } catch (Exception e) {
+            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
+        }
+        
+        try {
+            List<EventFullDto> events = eventService.getAdminEvents(users, states, categories, rangeStart, rangeEnd, from, size);
+            log.info("✅ Найдено событий: {}", events.size());
+            if (!events.isEmpty()) {
+                log.info("📋 Первое событие: id={}, title={}, state={}, confirmedRequests={}", 
+                        events.get(0).getId(), events.get(0).getTitle(), 
+                        events.get(0).getState(), events.get(0).getConfirmedRequests());
+            }
+            return ResponseEntity.ok(events);
+        } catch (Exception e) {
+            log.error("❌ Ошибка при получении событий: {}", e.getMessage(), e);
+            throw e;
+        }
     }
     
     @PatchMapping("/{eventId}")

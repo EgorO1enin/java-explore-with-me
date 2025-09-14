@@ -1,6 +1,7 @@
 package ru.practicum.ewm.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import ru.practicum.ewm.dto.Location;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
 import java.time.LocalDateTime;
 
 @Data
@@ -30,6 +32,7 @@ public class NewEventDto {
     private String description;
     
     @NotNull
+    @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
     private LocalDateTime eventDate;
     
     @NotNull
@@ -39,6 +42,7 @@ public class NewEventDto {
     private Boolean paid = false;
     
     @Builder.Default
+    @Min(value = 1, message = "Лимит участников не может быть отрицательным")
     private Integer participantLimit = 0;
     
     @Builder.Default

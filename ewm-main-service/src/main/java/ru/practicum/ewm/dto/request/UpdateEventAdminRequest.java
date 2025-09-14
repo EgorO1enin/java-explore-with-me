@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import ru.practicum.ewm.dto.Location;
 
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
 import java.time.LocalDateTime;
 
 @Data
@@ -29,6 +30,7 @@ public class UpdateEventAdminRequest {
     
     private Boolean paid;
     
+    @Min(value = 0, message = "Лимит участников не может быть отрицательным")
     private Integer participantLimit;
     
     private Boolean requestModeration;

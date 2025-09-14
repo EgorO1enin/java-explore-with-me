@@ -50,11 +50,26 @@ public class AdminUserController {
     public ResponseEntity<UserDto> createUser(
             @Valid @RequestBody NewUserRequest newUserRequest,
             HttpServletRequest request) {
-        log.info("POST /admin/users - создание пользователя администратором");
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        log.info("👤 POST /admin/users - создание пользователя администратором");
+        log.info("📝 Данные пользователя: name={}, email={}", newUserRequest.getName(), newUserRequest.getEmail());
+        log.info("🌐 IP адрес: {}", request.getRemoteAddr());
         
-        UserDto user = userService.createUser(newUserRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        try {
+            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+            log.info("✅ Статистика сохранена");
+        } catch (Exception e) {
+            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
+        }
+        
+        try {
+            UserDto user = userService.createUser(newUserRequest);
+            log.info("✅ Пользователь создан успешно: id={}, name={}, email={}", 
+                    user.getId(), user.getName(), user.getEmail());
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        } catch (Exception e) {
+            log.error("❌ Ошибка при создании пользователя: {}", e.getMessage(), e);
+            throw e;
+        }
     }
     
     @DeleteMapping("/{userId}")
