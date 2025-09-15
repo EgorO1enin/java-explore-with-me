@@ -14,11 +14,11 @@ public class JacksonConfig {
     @Primary
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
-        
+
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         mapper.registerModule(javaTimeModule);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        
+
         return mapper;
     }
 }
