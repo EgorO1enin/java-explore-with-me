@@ -24,10 +24,10 @@ import java.time.LocalDateTime;
 @Slf4j
 @Tag(name = "Admin: Подборки событий", description = "API для работы с подборками событий")
 public class AdminCompilationController {
-    
+
     private final CompilationService compilationService;
     private final StatsService statsService;
-    
+
     @PostMapping
     @Operation(summary = "Добавление новой подборки (подборка может не содержать событий)")
     public ResponseEntity<CompilationDto> createCompilation(
@@ -35,11 +35,11 @@ public class AdminCompilationController {
             HttpServletRequest request) {
         log.info("POST /admin/compilations - создание подборки");
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        
+
         CompilationDto compilation = compilationService.createCompilation(newCompilationDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(compilation);
     }
-    
+
     @DeleteMapping("/{compId}")
     @Operation(summary = "Удаление подборки")
     public ResponseEntity<Void> deleteCompilation(
@@ -47,11 +47,11 @@ public class AdminCompilationController {
             HttpServletRequest request) {
         log.info("DELETE /admin/compilations/{} - удаление подборки", compId);
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        
+
         compilationService.deleteCompilation(compId);
         return ResponseEntity.noContent().build();
     }
-    
+
     @PatchMapping("/{compId}")
     @Operation(summary = "Обновить информацию о подборке")
     public ResponseEntity<CompilationDto> updateCompilation(
@@ -61,18 +61,18 @@ public class AdminCompilationController {
         log.info("🔧 PATCH /admin/compilations/{} - обновление подборки", compId);
         log.info("📊 Данные для обновления: {}", updateCompilationRequest);
         log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
-        
+
         try {
             statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
             log.info("✅ Статистика сохранена успешно");
         } catch (Exception e) {
             log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
         }
-        
+
         try {
             CompilationDto compilation = compilationService.updateCompilation(compId, updateCompilationRequest);
-            log.info("✅ Подборка {} успешно обновлена: title={}, pinned={}, events={}", 
-                    compId, compilation.getTitle(), compilation.getPinned(), 
+            log.info("✅ Подборка {} успешно обновлена: title={}, pinned={}, events={}",
+                    compId, compilation.getTitle(), compilation.getPinned(),
                     compilation.getEvents() != null ? compilation.getEvents().size() : 0);
             return ResponseEntity.ok(compilation);
         } catch (Exception e) {

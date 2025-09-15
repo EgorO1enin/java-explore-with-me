@@ -23,10 +23,10 @@ import java.time.LocalDateTime;
 @Slf4j
 @Tag(name = "Admin: Категории", description = "API для работы с категориями администратора")
 public class AdminCategoryController {
-    
+
     private final CategoryService categoryService;
     private final StatsService statsService;
-    
+
     @PostMapping
     @Operation(summary = "Добавление новой категории")
     public ResponseEntity<CategoryDto> createCategory(
@@ -35,17 +35,17 @@ public class AdminCategoryController {
         log.info("📂 POST /admin/categories - создание категории администратором");
         log.info("📝 Данные категории: name={}", newCategoryDto.getName());
         log.info("🌐 IP адрес: {}", request.getRemoteAddr());
-        
+
         try {
             statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
             log.info("✅ Статистика сохранена");
         } catch (Exception e) {
             log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
         }
-        
+
         try {
             CategoryDto category = categoryService.createCategory(newCategoryDto);
-            log.info("✅ Категория создана успешно: id={}, name={}", 
+            log.info("✅ Категория создана успешно: id={}, name={}",
                     category.getId(), category.getName());
             return ResponseEntity.status(HttpStatus.CREATED).body(category);
         } catch (Exception e) {
@@ -53,7 +53,7 @@ public class AdminCategoryController {
             throw e;
         }
     }
-    
+
     @PatchMapping("/{catId}")
     @Operation(summary = "Изменение категории")
     public ResponseEntity<CategoryDto> updateCategory(
@@ -62,11 +62,11 @@ public class AdminCategoryController {
             HttpServletRequest request) {
         log.info("PATCH /admin/categories/{} - обновление категории администратором", catId);
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        
+
         CategoryDto category = categoryService.updateCategory(catId, newCategoryDto);
         return ResponseEntity.ok(category);
     }
-    
+
     @DeleteMapping("/{catId}")
     @Operation(summary = "Удаление категории")
     public ResponseEntity<Void> deleteCategory(
@@ -74,7 +74,7 @@ public class AdminCategoryController {
             HttpServletRequest request) {
         log.info("DELETE /admin/categories/{} - удаление категории администратором", catId);
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        
+
         categoryService.deleteCategory(catId);
         return ResponseEntity.noContent().build();
     }

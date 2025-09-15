@@ -17,11 +17,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Compilation {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @ManyToMany
     @JoinTable(
         name = "compilation_events",
@@ -29,10 +29,10 @@ public class Compilation {
         inverseJoinColumns = @JoinColumn(name = "event_id")
     )
     private List<Event> events;
-    
+
     @Column(name = "pinned", nullable = false)
     private Boolean pinned = false;
-    
+
     @NotBlank
     @Size(min = 1, max = 50)
     @Column(name = "title", nullable = false, length = 50)

@@ -25,46 +25,46 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Admin: События", description = "API для работы с событиями администратора")
 public class AdminEventController {
-    
+
     private final EventService eventService;
     private final StatsService statsService;
-    
+
     @GetMapping
     @Operation(summary = "Поиск событий")
     public ResponseEntity<List<EventFullDto>> getAdminEvents(
-            @Parameter(description = "Список id пользователей, чьи события нужно найти") 
+            @Parameter(description = "Список id пользователей, чьи события нужно найти")
             @RequestParam(required = false) List<Long> users,
-            @Parameter(description = "Список состояний в которых находятся искомые события") 
+            @Parameter(description = "Список состояний в которых находятся искомые события")
             @RequestParam(required = false) List<EventState> states,
-            @Parameter(description = "Список id категорий в которых будет вестись поиск") 
+            @Parameter(description = "Список id категорий в которых будет вестись поиск")
             @RequestParam(required = false) List<Long> categories,
-            @Parameter(description = "Дата и время не раньше которых должно произойти событие") 
+            @Parameter(description = "Дата и время не раньше которых должно произойти событие")
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-            @Parameter(description = "Дата и время не позже которых должно произойти событие") 
+            @Parameter(description = "Дата и время не позже которых должно произойти событие")
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
-            @Parameter(description = "Количество элементов, которые нужно пропустить для формирования текущего набора") 
+            @Parameter(description = "Количество элементов, которые нужно пропустить для формирования текущего набора")
             @RequestParam(defaultValue = "0") int from,
-            @Parameter(description = "Количество элементов в наборе") 
+            @Parameter(description = "Количество элементов в наборе")
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
         log.info("🔍 GET /admin/events - получение событий администратором");
-        log.info("📊 Параметры запроса: users={}, states={}, categories={}, rangeStart={}, rangeEnd={}, from={}, size={}", 
+        log.info("📊 Параметры запроса: users={}, states={}, categories={}, rangeStart={}, rangeEnd={}, from={}, size={}",
                 users, states, categories, rangeStart, rangeEnd, from, size);
         log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
-        
+
         try {
             statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
             log.info("✅ Статистика сохранена успешно");
         } catch (Exception e) {
             log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
         }
-        
+
         try {
             List<EventFullDto> events = eventService.getAdminEvents(users, states, categories, rangeStart, rangeEnd, from, size);
             log.info("✅ Найдено событий: {}", events.size());
             if (!events.isEmpty()) {
-                log.info("📋 Первое событие: id={}, title={}, state={}, confirmedRequests={}", 
-                        events.get(0).getId(), events.get(0).getTitle(), 
+                log.info("📋 Первое событие: id={}, title={}, state={}, confirmedRequests={}",
+                        events.get(0).getId(), events.get(0).getTitle(),
                         events.get(0).getState(), events.get(0).getConfirmedRequests());
             }
             return ResponseEntity.ok(events);
@@ -73,7 +73,7 @@ public class AdminEventController {
             throw e;
         }
     }
-    
+
     @PatchMapping("/{eventId}")
     @Operation(summary = "Редактирование данных события и его статуса (отклонение/публикация)")
     public ResponseEntity<EventFullDto> updateAdminEvent(
@@ -83,17 +83,17 @@ public class AdminEventController {
         log.info("🔧 PATCH /admin/events/{} - обновление события администратором", eventId);
         log.info("📊 Данные для обновления: {}", updateEventAdminRequest);
         log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
-        
+
         try {
             statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
             log.info("✅ Статистика сохранена успешно");
         } catch (Exception e) {
             log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
         }
-        
+
         try {
             EventFullDto event = eventService.updateAdminEvent(eventId, updateEventAdminRequest);
-            log.info("✅ Событие {} успешно обновлено: title={}, state={}, confirmedRequests={}", 
+            log.info("✅ Событие {} успешно обновлено: title={}, state={}, confirmedRequests={}",
                     eventId, event.getTitle(), event.getState(), event.getConfirmedRequests());
             return ResponseEntity.ok(event);
         } catch (Exception e) {

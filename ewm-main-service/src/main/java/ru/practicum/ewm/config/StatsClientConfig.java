@@ -8,10 +8,10 @@ import ru.practicum.ewm.stats.client.config.StatsClientProperties;
 
 @Configuration
 public class StatsClientConfig {
-    
+
     @Value("${stats-service.url:http://localhost:9090}")
     private String statsServiceUrl;
-    
+
     @Bean
     @Primary
     public StatsClientProperties statsClientProperties() {

@@ -9,10 +9,10 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ParticipationRequestMapper {
-    
+
     @Mapping(target = "event", source = "event.id")
     @Mapping(target = "requester", source = "requester.id")
     ParticipationRequestDto toParticipationRequestDto(ParticipationRequest participationRequest);
-    
+
     List<ParticipationRequestDto> toParticipationRequestDtoList(List<ParticipationRequest> participationRequests);
 }

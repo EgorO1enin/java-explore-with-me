@@ -18,23 +18,23 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Public: Подборки событий", description = "Публичный API для работы с подборками событий")
 public class PublicCompilationController {
-    
+
     private final CompilationService compilationService;
-    
+
     @GetMapping
     @Operation(summary = "Получение подборок событий")
     public ResponseEntity<List<CompilationDto>> getCompilations(
-            @Parameter(description = "искать только закрепленные/не закрепленные подборки") 
+            @Parameter(description = "искать только закрепленные/не закрепленные подборки")
             @RequestParam(required = false) Boolean pinned,
-            @Parameter(description = "количество элементов, которые нужно пропустить") 
+            @Parameter(description = "количество элементов, которые нужно пропустить")
             @RequestParam(defaultValue = "0") int from,
-            @Parameter(description = "количество элементов в наборе") 
+            @Parameter(description = "количество элементов в наборе")
             @RequestParam(defaultValue = "10") int size) {
         log.info("GET /compilations - получение подборок: pinned={}, from={}, size={}", pinned, from, size);
         List<CompilationDto> compilations = compilationService.getCompilations(pinned, from, size);
         return ResponseEntity.ok(compilations);
     }
-    
+
     @GetMapping("/{compId}")
     @Operation(summary = "Получение подборки событий по его id")
     public ResponseEntity<CompilationDto> getCompilation(

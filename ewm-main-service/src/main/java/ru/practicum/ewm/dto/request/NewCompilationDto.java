@@ -14,13 +14,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NewCompilationDto {
-    
+
     @NotBlank(message = "Заголовок подборки не может быть пустым")
     @Size(min = 1, max = 50, message = "Заголовок подборки должен содержать от 1 до 50 символов")
     private String title;
-    
+
     @Builder.Default
     private Boolean pinned = false;
-    
+
     private List<Long> events;
 }

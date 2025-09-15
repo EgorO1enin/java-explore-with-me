@@ -14,15 +14,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ParticipationRequestDto {
-    
+
     @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
     private LocalDateTime created;
-    
+
     private Long event;
-    
+
     private Long id;
-    
+
     private Long requester;
-    
+
     private RequestStatus status;
 }

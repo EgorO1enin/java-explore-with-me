@@ -24,27 +24,27 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Admin: Пользователи", description = "API для работы с пользователями администратора")
 public class AdminUserController {
-    
+
     private final UserService userService;
     private final StatsService statsService;
-    
+
     @GetMapping
     @Operation(summary = "Получение информации о пользователях")
     public ResponseEntity<List<UserDto>> getUsers(
-            @Parameter(description = "Список id пользователей для которых нужно получить информацию") 
+            @Parameter(description = "Список id пользователей для которых нужно получить информацию")
             @RequestParam(required = false) List<Long> ids,
-            @Parameter(description = "Количество элементов, которые нужно пропустить для формирования текущего набора") 
+            @Parameter(description = "Количество элементов, которые нужно пропустить для формирования текущего набора")
             @RequestParam(defaultValue = "0") int from,
-            @Parameter(description = "Количество элементов в наборе") 
+            @Parameter(description = "Количество элементов в наборе")
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
         log.info("GET /admin/users - получение пользователей администратором");
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        
+
         List<UserDto> users = userService.getUsers(ids, from, size);
         return ResponseEntity.ok(users);
     }
-    
+
     @PostMapping
     @Operation(summary = "Добавление нового пользователя")
     public ResponseEntity<UserDto> createUser(
@@ -53,17 +53,17 @@ public class AdminUserController {
         log.info("👤 POST /admin/users - создание пользователя администратором");
         log.info("📝 Данные пользователя: name={}, email={}", newUserRequest.getName(), newUserRequest.getEmail());
         log.info("🌐 IP адрес: {}", request.getRemoteAddr());
-        
+
         try {
             statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
             log.info("✅ Статистика сохранена");
         } catch (Exception e) {
             log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
         }
-        
+
         try {
             UserDto user = userService.createUser(newUserRequest);
-            log.info("✅ Пользователь создан успешно: id={}, name={}, email={}", 
+            log.info("✅ Пользователь создан успешно: id={}, name={}, email={}",
                     user.getId(), user.getName(), user.getEmail());
             return ResponseEntity.status(HttpStatus.CREATED).body(user);
         } catch (Exception e) {
@@ -71,7 +71,7 @@ public class AdminUserController {
             throw e;
         }
     }
-    
+
     @DeleteMapping("/{userId}")
     @Operation(summary = "Удаление пользователя")
     public ResponseEntity<Void> deleteUser(
@@ -79,7 +79,7 @@ public class AdminUserController {
             HttpServletRequest request) {
         log.info("DELETE /admin/users/{} - удаление пользователя администратором", userId);
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        
+
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }

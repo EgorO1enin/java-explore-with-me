@@ -17,16 +17,16 @@ import jakarta.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @NotBlank
     @Size(min = 2, max = 250)
     @Column(name = "name", nullable = false, length = 250)
     private String name;
-    
+
     @NotBlank
     @Email
     @Size(min = 6, max = 254)

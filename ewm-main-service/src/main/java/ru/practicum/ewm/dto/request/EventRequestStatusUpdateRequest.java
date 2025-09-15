@@ -14,10 +14,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventRequestStatusUpdateRequest {
-    
+
     @NotNull
     private List<Long> requestIds;
-    
+
     @NotNull
     private RequestStatus status;
 }

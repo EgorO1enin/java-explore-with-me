@@ -22,60 +22,60 @@ import java.util.List;
 @Slf4j
 @Transactional(readOnly = true)
 public class UserService {
-    
+
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    
+
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
         log.info("Получение пользователей: ids={}, from={}, size={}", ids, from, size);
-        
+
         Pageable pageable = PageRequest.of(from / size, size);
         Page<User> users;
-        
+
         if (ids != null && !ids.isEmpty()) {
             users = userRepository.findByIdIn(ids, pageable);
         } else {
             users = userRepository.findAll(pageable);
         }
-        
+
         return userMapper.toUserDtoList(users.getContent());
     }
-    
+
     public UserDto getUserById(Long userId) {
         log.info("Получение пользователя с ID: {}", userId);
-        
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID " + userId + " не найден"));
-        
+
         return userMapper.toUserDto(user);
     }
-    
+
     @Transactional
     public UserDto createUser(NewUserRequest newUserRequest) {
         log.info("Создание пользователя: {}", newUserRequest);
-        
+
         if (userRepository.findByEmail(newUserRequest.getEmail()).isPresent()) {
             throw new ConflictException("Пользователь с email " + newUserRequest.getEmail() + " уже существует");
         }
-        
+
         User user = userMapper.toUser(newUserRequest);
         User savedUser = userRepository.save(user);
-        
+
         log.info("Пользователь создан с ID: {}", savedUser.getId());
         return userMapper.toUserDto(savedUser);
     }
-    
+
     @Transactional
     public void deleteUser(Long userId) {
         log.info("Удаление пользователя с ID: {}", userId);
-        
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID " + userId + " не найден"));
-        
+
         userRepository.delete(user);
         log.info("Пользователь с ID {} удален", userId);
     }
-    
+
     public User getUserEntityById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID " + userId + " не найден"));

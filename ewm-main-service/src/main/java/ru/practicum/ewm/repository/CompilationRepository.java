@@ -8,12 +8,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.practicum.ewm.model.Compilation;
 
-import java.util.List;
-import java.util.Optional;
-
 @Repository
 public interface CompilationRepository extends JpaRepository<Compilation, Long> {
-    
+
     @Query("SELECT c FROM Compilation c WHERE (:pinned IS NULL OR c.pinned = :pinned)")
     Page<Compilation> findByPinned(@Param("pinned") Boolean pinned, Pageable pageable);
 }
