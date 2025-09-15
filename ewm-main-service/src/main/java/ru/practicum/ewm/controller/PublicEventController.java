@@ -86,14 +86,16 @@ public class PublicEventController {
         log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
         
         try {
-            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-            log.info("✅ Статистика сохранена успешно");
-        } catch (Exception e) {
-            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
-        }
-        
-        try {
             EventFullDto eventDto = eventService.getPublicEvent(id);
+            
+            // Сохраняем статистику ПОСЛЕ получения события
+            try {
+                statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+                log.info("✅ Статистика сохранена успешно");
+            } catch (Exception e) {
+                log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
+            }
+            
             log.info("✅ Публичное событие найдено: id={}, title={}, state={}, views={}, confirmedRequests={}", 
                     eventDto.getId(), eventDto.getTitle(), eventDto.getState(), 
                     eventDto.getViews(), eventDto.getConfirmedRequests());

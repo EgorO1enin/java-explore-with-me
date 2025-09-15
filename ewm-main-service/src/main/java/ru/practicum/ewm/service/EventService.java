@@ -270,6 +270,19 @@ public class EventService {
         log.info("🔍 Оригинальные параметры: categories={}", categories);
         log.info("🔧 Отфильтрованные параметры: filteredCategories={}", filteredCategories);
 
+        // Валидация параметров
+        if (from < 0) {
+            throw new BadRequestException("Параметр from не может быть отрицательным");
+        }
+        if (size <= 0) {
+            throw new BadRequestException("Параметр size должен быть положительным");
+        }
+        
+        // Валидация дат
+        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
+            throw new BadRequestException("Дата начала поиска не может быть позже даты окончания");
+        }
+
         // Создаем динамический запрос
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = cb.createQuery(Event.class);
@@ -333,16 +346,8 @@ public class EventService {
         List<Event> events = allEvents.subList(start, end);
         log.info("📄 Применена пагинация: from={}, size={}, result={}", from, size, events.size());
 
-        // Обновляем количество просмотров и подтвержденных заявок для каждого события
+        // Обновляем количество подтвержденных заявок для каждого события
         for (Event event : events) {
-            try {
-                Long views = statsService.getEventViews(event.getId());
-                event.setViews(views);
-            } catch (Exception e) {
-                log.warn("Не удалось получить количество просмотров для события {}: {}", event.getId(), e.getMessage());
-                event.setViews(0L);
-            }
-
             // Обновляем количество подтвержденных заявок
             updateConfirmedRequests(event.getId());
         }
@@ -365,14 +370,11 @@ public class EventService {
             throw new NotFoundException("Событие с ID " + eventId + " не опубликовано");
         }
 
-        // Получаем количество просмотров из сервиса статистики
-        try {
-            Long views = statsService.getEventViews(eventId);
-            event.setViews(views);
-        } catch (Exception e) {
-            log.warn("Не удалось получить количество просмотров для события {}: {}", eventId, e.getMessage());
-            event.setViews(0L);
-        }
+        // Увеличиваем счетчик просмотров на 1
+        Long currentViews = event.getViews() != null ? event.getViews() : 0L;
+        event.setViews(currentViews + 1);
+        eventRepository.save(event);
+        log.info("Счетчик просмотров для события {} увеличен с {} до {}", eventId, currentViews, event.getViews());
 
         // Обновляем количество подтвержденных заявок
         updateConfirmedRequests(eventId);

@@ -17,6 +17,7 @@ import ru.practicum.ewm.model.Event;
 import ru.practicum.ewm.repository.CompilationRepository;
 import ru.practicum.ewm.repository.EventRepository;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +44,32 @@ public class CompilationService {
             compilations = compilationRepository.findAll(pageable);
         }
         
-        return compilationMapper.toCompilationDtoList(compilations.getContent());
+        List<Compilation> compilationList = compilations.getContent();
+        log.info("Найдено подборок: {}", compilationList != null ? compilationList.size() : "null");
+        
+        if (compilationList == null) {
+            compilationList = new ArrayList<>();
+            log.warn("compilations.getContent() вернул null, создаем пустой список");
+        }
+        
+        List<CompilationDto> result = compilationMapper.toCompilationDtoList(compilationList);
+        log.info("Результат маппинга: {}", result != null ? result.size() + " элементов" : "null");
+        
+        // Дополнительная защита: убеждаемся, что result не null
+        if (result == null) {
+            result = new ArrayList<>();
+            log.warn("compilationMapper.toCompilationDtoList() вернул null, создаем пустой список");
+        }
+        
+        // Дополнительная защита: убеждаемся, что events в каждом CompilationDto не null
+        for (CompilationDto compilationDto : result) {
+            if (compilationDto.getEvents() == null) {
+                compilationDto.setEvents(new ArrayList<>());
+                log.warn("CompilationDto {} имеет null events, устанавливаем пустой список", compilationDto.getId());
+            }
+        }
+        
+        return result;
     }
     
     public CompilationDto getCompilation(Long compId) {
@@ -52,7 +78,15 @@ public class CompilationService {
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Подборка с ID " + compId + " не найдена"));
         
-        return compilationMapper.toCompilationDto(compilation);
+        CompilationDto result = compilationMapper.toCompilationDto(compilation);
+        
+        // Дополнительная защита: убеждаемся, что events не null
+        if (result != null && result.getEvents() == null) {
+            result.setEvents(new ArrayList<>());
+            log.warn("CompilationDto {} имеет null events, устанавливаем пустой список", result.getId());
+        }
+        
+        return result;
     }
     
     @Transactional
@@ -77,8 +111,13 @@ public class CompilationService {
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Подборка с ID " + compId + " не найдена"));
         
-        compilationMapper.updateCompilation(updateCompilationRequest, compilation);
-        
+        // Обновляем только не-null поля
+        if (updateCompilationRequest.getTitle() != null && !updateCompilationRequest.getTitle().trim().isEmpty()) {
+            compilation.setTitle(updateCompilationRequest.getTitle());
+        }
+        if (updateCompilationRequest.getPinned() != null) {
+            compilation.setPinned(updateCompilationRequest.getPinned());
+        }
         if (updateCompilationRequest.getEvents() != null) {
             List<Event> events = eventRepository.findByIdIn(updateCompilationRequest.getEvents());
             compilation.setEvents(events);
