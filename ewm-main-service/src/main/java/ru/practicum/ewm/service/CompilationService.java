@@ -43,21 +43,10 @@ public class CompilationService {
         }
 
         List<Compilation> compilationList = compilations.getContent();
-        log.info("Найдено подборок: {}", compilationList != null ? compilationList.size() : "null");
-
-        if (compilationList == null) {
-            compilationList = new ArrayList<>();
-            log.warn("compilations.getContent() вернул null, создаем пустой список");
-        }
+        log.info("Найдено подборок: {}", compilationList.size());
 
         List<CompilationDto> result = compilationMapper.toCompilationDtoList(compilationList);
-        log.info("Результат маппинга: {}", result != null ? result.size() + " элементов" : "null");
-
-        // Дополнительная защита: убеждаемся, что result не null
-        if (result == null) {
-            result = new ArrayList<>();
-            log.warn("compilationMapper.toCompilationDtoList() вернул null, создаем пустой список");
-        }
+        log.info("Результат маппинга: {} элементов", result.size());
 
         // Дополнительная защита: убеждаемся, что events в каждом CompilationDto не null
         for (CompilationDto compilationDto : result) {
@@ -79,7 +68,7 @@ public class CompilationService {
         CompilationDto result = compilationMapper.toCompilationDto(compilation);
 
         // Дополнительная защита: убеждаемся, что events не null
-        if (result != null && result.getEvents() == null) {
+        if (result.getEvents() == null) {
             result.setEvents(new ArrayList<>());
             log.warn("CompilationDto {} имеет null events, устанавливаем пустой список", result.getId());
         }
