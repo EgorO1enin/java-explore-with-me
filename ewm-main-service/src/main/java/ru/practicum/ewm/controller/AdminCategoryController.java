@@ -34,7 +34,8 @@ public class AdminCategoryController {
             HttpServletRequest request) {
         log.info("POST /admin/categories - создание категории администратором");
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         CategoryDto category = categoryService.createCategory(newCategoryDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(category);
     }
@@ -46,7 +47,8 @@ public class AdminCategoryController {
             @Valid @RequestBody NewCategoryDto newCategoryDto,
             HttpServletRequest request) {
         log.info("PATCH /admin/categories/{} - обновление категории администратором", catId);
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
 
         CategoryDto category = categoryService.updateCategory(catId, newCategoryDto);
         return ResponseEntity.ok(category);
@@ -58,7 +60,8 @@ public class AdminCategoryController {
             @Parameter(description = "ID категории") @PathVariable Long catId,
             HttpServletRequest request) {
         log.info("DELETE /admin/categories/{} - удаление категории администратором", catId);
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
 
         categoryService.deleteCategory(catId);
         return ResponseEntity.noContent().build();

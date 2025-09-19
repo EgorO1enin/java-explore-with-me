@@ -40,7 +40,8 @@ public class PrivateRequestController {
             throw new BadRequestException("ID пользователя должен быть указан и больше 0");
         }
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         List<ParticipationRequestDto> requests = participationRequestService.getUserRequests(userId);
         return ResponseEntity.ok(requests);
     }
@@ -64,7 +65,8 @@ public class PrivateRequestController {
             throw new BadRequestException("ID события должен быть указан и не может быть отрицательным");
         }
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         ParticipationRequestDto participationRequest = participationRequestService.createRequest(userId, eventId);
         return ResponseEntity.status(HttpStatus.CREATED).body(participationRequest);
     }
@@ -88,7 +90,8 @@ public class PrivateRequestController {
             throw new BadRequestException("ID запроса должен быть указан и больше 0");
         }
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         ParticipationRequestDto participationRequest = participationRequestService.cancelRequest(userId, requestId);
         return ResponseEntity.ok(participationRequest);
     }

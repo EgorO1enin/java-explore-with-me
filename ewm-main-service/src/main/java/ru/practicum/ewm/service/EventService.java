@@ -55,7 +55,8 @@ public class EventService {
             throw new BadRequestException("Дата события не может быть в прошлом");
         }
         if (newEventDto.getEventDate().isBefore(now.plusHours(2))) {
-            throw new BadRequestException("Дата события должна быть не ранее чем через 2 часа от текущего момента");
+            throw new BadRequestException("Дата события должна быть не ранее чем через 2 часа " +
+                    "от текущего момента");
         }
 
         User initiator = userService.getUserEntityById(userId);
@@ -105,7 +106,8 @@ public class EventService {
                 throw new BadRequestException("Дата события не может быть в прошлом");
             }
             if (updateEventUserRequest.getEventDate().isBefore(now.plusHours(2))) {
-                throw new BadRequestException("Дата события должна быть не ранее чем через 2 часа от текущего момента");
+                throw new BadRequestException("Дата события должна быть не ранее чем через 2 часа " +
+                    "от текущего момента");
             }
         }
 

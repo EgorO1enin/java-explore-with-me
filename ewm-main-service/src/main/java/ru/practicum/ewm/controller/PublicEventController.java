@@ -3,6 +3,7 @@ package ru.practicum.ewm.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,8 +14,6 @@ import ru.practicum.ewm.dto.response.EventShortDto;
 import ru.practicum.ewm.model.enums.EventSortType;
 import ru.practicum.ewm.service.EventService;
 import ru.practicum.ewm.service.StatsService;
-
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -52,8 +51,10 @@ public class PublicEventController {
             HttpServletRequest request) {
         log.info("GET /events - получение публичных событий");
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        List<EventShortDto> events = eventService.getPublicEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
+        List<EventShortDto> events = eventService.getPublicEvents(text, categories, paid, rangeStart,
+                rangeEnd, onlyAvailable, sort, from, size);
         return ResponseEntity.ok(events);
     }
 
@@ -67,7 +68,8 @@ public class PublicEventController {
         EventFullDto eventDto = eventService.getPublicEvent(id);
 
         // Сохраняем статистику ПОСЛЕ получения события
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
 
         return ResponseEntity.ok(eventDto);
     }

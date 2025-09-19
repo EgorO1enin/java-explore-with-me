@@ -44,7 +44,8 @@ public class GlobalExceptionHandler {
         errorResponse.put("timestamp", LocalDateTime.now());
         errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
         errorResponse.put("error", "Bad Request");
-        errorResponse.put("message", "Required parameter '" + ex.getParameterName() + "' is missing");
+        errorResponse.put("message", "Required parameter '" + ex.getParameterName() +
+                "' is missing");
 
         return ResponseEntity.badRequest().body(errorResponse);
     }

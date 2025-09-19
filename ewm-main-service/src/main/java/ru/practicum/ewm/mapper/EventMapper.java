@@ -41,7 +41,8 @@ public interface EventMapper {
     List<EventShortDto> toEventShortDtoList(List<Event> events);
 
     @Named("categoryToDto")
-    default ru.practicum.ewm.dto.response.CategoryDto categoryToDto(ru.practicum.ewm.model.Category category) {
+    default ru.practicum.ewm.dto.response.CategoryDto categoryToDto(
+            ru.practicum.ewm.model.Category category) {
         if (category == null) {
             return null;
         }

@@ -63,7 +63,8 @@ public class GlobalExceptionHandler {
         errorResponse.put("timestamp", LocalDateTime.now());
         errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
         errorResponse.put("error", "Bad Request");
-        errorResponse.put("message", "Ошибка валидации: " + e.getBindingResult().getFieldError().getDefaultMessage());
+        errorResponse.put("message", "Ошибка валидации: " +
+                e.getBindingResult().getFieldError().getDefaultMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
@@ -76,7 +77,8 @@ public class GlobalExceptionHandler {
         errorResponse.put("timestamp", LocalDateTime.now());
         errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
         errorResponse.put("error", "Bad Request");
-        errorResponse.put("message", "Обязательный параметр '" + e.getParameterName() + "' не указан");
+        errorResponse.put("message", "Обязательный параметр '" + e.getParameterName() +
+                "' не указан");
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }

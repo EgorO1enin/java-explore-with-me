@@ -34,7 +34,8 @@ public class AdminCompilationController {
             @Valid @RequestBody NewCompilationDto newCompilationDto,
             HttpServletRequest request) {
         log.info("POST /admin/compilations - создание подборки");
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
 
         CompilationDto compilation = compilationService.createCompilation(newCompilationDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(compilation);
@@ -46,7 +47,8 @@ public class AdminCompilationController {
             @Parameter(description = "id подборки") @PathVariable Long compId,
             HttpServletRequest request) {
         log.info("DELETE /admin/compilations/{} - удаление подборки", compId);
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
 
         compilationService.deleteCompilation(compId);
         return ResponseEntity.noContent().build();
@@ -60,7 +62,8 @@ public class AdminCompilationController {
             HttpServletRequest request) {
         log.info("PATCH /admin/compilations/{} - обновление подборки", compId);
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         CompilationDto compilation = compilationService.updateCompilation(compId, updateCompilationRequest);
         return ResponseEntity.ok(compilation);
     }

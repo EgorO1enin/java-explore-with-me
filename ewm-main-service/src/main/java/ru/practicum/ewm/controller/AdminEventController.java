@@ -49,8 +49,10 @@ public class AdminEventController {
             HttpServletRequest request) {
         log.info("GET /admin/events - получение событий администратором");
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-        List<EventFullDto> events = eventService.getAdminEvents(users, states, categories, rangeStart, rangeEnd, from, size);
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
+        List<EventFullDto> events = eventService.getAdminEvents(users, states, categories, rangeStart,
+                rangeEnd, from, size);
         return ResponseEntity.ok(events);
     }
 
@@ -62,7 +64,8 @@ public class AdminEventController {
             HttpServletRequest request) {
         log.info("PATCH /admin/events/{} - обновление события администратором", eventId);
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         EventFullDto event = eventService.updateAdminEvent(eventId, updateEventAdminRequest);
         return ResponseEntity.ok(event);
     }

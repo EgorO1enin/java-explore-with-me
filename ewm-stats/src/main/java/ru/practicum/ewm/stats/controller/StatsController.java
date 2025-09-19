@@ -51,7 +51,7 @@ public class StatsController {
     @Operation(
         summary = "Получение статистики по посещениям",
         description = "Получение статистики по посещениям. Обратите внимание: значение даты и времени " +
-                     "нужно закодировать (например используя java.net.URLEncoder.encode)"
+                "нужно закодировать (например используя java.net.URLEncoder.encode)"
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -67,14 +67,16 @@ public class StatsController {
     })
     public ResponseEntity<List<ViewStats>> getStats(
             @Parameter(
-                description = "Дата и время начала диапазона за который нужно выгрузить статистику (в формате \"yyyy-MM-dd HH:mm:ss\")",
+                description = "Дата и время начала диапазона за который нужно выгрузить статистику " +
+                        "(в формате \"yyyy-MM-dd HH:mm:ss\")",
                 required = true,
                 example = "2022-09-06 11:00:23"
             )
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
 
             @Parameter(
-                description = "Дата и время конца диапазона за который нужно выгрузить статистику (в формате \"yyyy-MM-dd HH:mm:ss\")",
+                description = "Дата и время конца диапазона за который нужно выгрузить статистику " +
+                        "(в формате \"yyyy-MM-dd HH:mm:ss\")",
                 required = true,
                 example = "2022-09-06 12:00:23"
             )
@@ -87,7 +89,8 @@ public class StatsController {
             @RequestParam(required = false) List<String> uris,
 
             @Parameter(
-                description = "Нужно ли учитывать только уникальные посещения (только с уникальным IP)",
+                description = "Нужно ли учитывать только уникальные посещения " +
+                        "(только с уникальным IP)",
                 example = "false"
             )
             @RequestParam(defaultValue = "false") Boolean unique) {

@@ -39,7 +39,8 @@ public class AdminUserController {
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
         log.info("GET /admin/users - получение пользователей администратором");
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
 
         List<UserDto> users = userService.getUsers(ids, from, size);
         return ResponseEntity.ok(users);
@@ -52,7 +53,8 @@ public class AdminUserController {
             HttpServletRequest request) {
         log.info("POST /admin/users - создание пользователя администратором");
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         UserDto user = userService.createUser(newUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
@@ -63,7 +65,8 @@ public class AdminUserController {
             @Parameter(description = "ID пользователя") @PathVariable Long userId,
             HttpServletRequest request) {
         log.info("DELETE /admin/users/{} - удаление пользователя администратором", userId);
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
 
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();

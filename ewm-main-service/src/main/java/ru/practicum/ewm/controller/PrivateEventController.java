@@ -43,7 +43,8 @@ public class PrivateEventController {
             HttpServletRequest request) {
         log.info("POST /users/{}/events - создание события", userId);
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         EventFullDto event = eventService.createEvent(userId, newEventDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(event);
     }
@@ -59,7 +60,8 @@ public class PrivateEventController {
             HttpServletRequest request) {
         log.info("GET /users/{}/events - получение событий пользователя", userId);
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         List<EventShortDto> events = eventService.getUserEvents(userId, from, size);
         return ResponseEntity.ok(events);
     }
@@ -72,7 +74,8 @@ public class PrivateEventController {
             HttpServletRequest request) {
         log.info("GET /users/{}/events/{} - получение события пользователя", userId, eventId);
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         EventFullDto event = eventService.getUserEvent(userId, eventId);
         return ResponseEntity.ok(event);
     }
@@ -86,7 +89,8 @@ public class PrivateEventController {
             HttpServletRequest request) {
         log.info("PATCH /users/{}/events/{} - обновление события пользователя", userId, eventId);
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         EventFullDto event = eventService.updateUserEvent(userId, eventId, updateEventUserRequest);
         return ResponseEntity.ok(event);
     }
@@ -99,7 +103,8 @@ public class PrivateEventController {
             HttpServletRequest request) {
         log.info("GET /users/{}/events/{}/requests - получение запросов на участие в событии", userId, eventId);
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         List<ParticipationRequestDto> requests = participationRequestService.getEventParticipants(userId, eventId);
         return ResponseEntity.ok(requests);
     }
@@ -113,7 +118,8 @@ public class PrivateEventController {
             HttpServletRequest request) {
         log.info("PATCH /users/{}/events/{}/requests - изменение статуса запросов", userId, eventId);
 
-        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         EventRequestStatusUpdateResult result = participationRequestService.changeRequestStatus(
                 userId, eventId, eventRequestStatusUpdateRequest);
         return ResponseEntity.ok(result);

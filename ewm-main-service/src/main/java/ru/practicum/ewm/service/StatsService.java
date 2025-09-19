@@ -31,7 +31,8 @@ public class StatsService {
                     .build();
 
             log.info("🔧 Создан EndpointHit: app={}, uri={}, ip={}, timestamp={}",
-                    endpointHit.getApp(), endpointHit.getUri(), endpointHit.getIp(), endpointHit.getTimestamp());
+                    endpointHit.getApp(), endpointHit.getUri(), endpointHit.getIp(),
+                    endpointHit.getTimestamp());
             statsClient.saveHit(app, uri, ip, timestamp);
             log.info("✅ Статистика успешно сохранена");
         } catch (Exception e) {

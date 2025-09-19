@@ -62,11 +62,13 @@ public class StatsClient {
      * @param unique учитывать только уникальные посещения (по IP)
      * @return список статистики
      */
-    public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+    public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris,
+            boolean unique) {
         String startFormatted = start.format(DATE_FORMAT);
         String endFormatted = end.format(DATE_FORMAT);
 
-        WebClient.RequestHeadersUriSpec<?> requestSpec = (WebClient.RequestHeadersUriSpec<?>) webClient.get()
+        WebClient.RequestHeadersUriSpec<?> requestSpec =
+                (WebClient.RequestHeadersUriSpec<?>) webClient.get()
                 .uri(uriBuilder -> {
                     uriBuilder.path("/stats")
                             .queryParam("start", startFormatted)
@@ -91,14 +93,16 @@ public class StatsClient {
     /**
      * Получить статистику посещений (только уникальные)
      */
-    public List<ViewStats> getUniqueStats(LocalDateTime start, LocalDateTime end, List<String> uris) {
+    public List<ViewStats> getUniqueStats(LocalDateTime start, LocalDateTime end,
+            List<String> uris) {
         return getStats(start, end, uris, true);
     }
 
     /**
      * Получить статистику посещений (все)
      */
-    public List<ViewStats> getAllStats(LocalDateTime start, LocalDateTime end, List<String> uris) {
+    public List<ViewStats> getAllStats(LocalDateTime start, LocalDateTime end,
+            List<String> uris) {
         return getStats(start, end, uris, false);
     }
 }

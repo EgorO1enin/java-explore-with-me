@@ -38,12 +38,14 @@ public class StatsUtils {
      */
     public static String getClientIpAddress(HttpServletRequest request) {
         String xForwardedForHeader = request.getHeader("X-Forwarded-For");
-        if (xForwardedForHeader != null && !xForwardedForHeader.isEmpty() && !"unknown".equalsIgnoreCase(xForwardedForHeader)) {
+        if (xForwardedForHeader != null && !xForwardedForHeader.isEmpty() &&
+                !"unknown".equalsIgnoreCase(xForwardedForHeader)) {
             return xForwardedForHeader.split(",")[0].trim();
         }
 
         String xRealIpHeader = request.getHeader("X-Real-IP");
-        if (xRealIpHeader != null && !xRealIpHeader.isEmpty() && !"unknown".equalsIgnoreCase(xRealIpHeader)) {
+        if (xRealIpHeader != null && !xRealIpHeader.isEmpty() &&
+                !"unknown".equalsIgnoreCase(xRealIpHeader)) {
             return xRealIpHeader;
         }
 

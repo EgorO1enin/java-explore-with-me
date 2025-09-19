@@ -52,7 +52,8 @@ public class CompilationService {
         for (CompilationDto compilationDto : result) {
             if (compilationDto.getEvents() == null) {
                 compilationDto.setEvents(new ArrayList<>());
-                log.warn("CompilationDto {} имеет null events, устанавливаем пустой список", compilationDto.getId());
+                log.warn("CompilationDto {} имеет null events, устанавливаем пустой список",
+                        compilationDto.getId());
             }
         }
 
@@ -70,7 +71,8 @@ public class CompilationService {
         // Дополнительная защита: убеждаемся, что events не null
         if (result.getEvents() == null) {
             result.setEvents(new ArrayList<>());
-            log.warn("CompilationDto {} имеет null events, устанавливаем пустой список", result.getId());
+            log.warn("CompilationDto {} имеет null events, устанавливаем пустой список",
+                    result.getId());
         }
 
         return result;

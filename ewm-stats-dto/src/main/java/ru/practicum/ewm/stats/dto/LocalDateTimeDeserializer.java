@@ -45,7 +45,7 @@ public class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime> {
             }
         }
         throw new IOException("Не удалось распарсить дату: " + dateTimeString +
-                            ". Поддерживаемые форматы: yyyy-MM-dd'T'HH:mm:ss.SSS'Z', " +
-                            "yyyy-MM-dd'T'HH:mm:ss'Z', yyyy-MM-dd HH:mm:ss");
+                ". Поддерживаемые форматы: yyyy-MM-dd'T'HH:mm:ss.SSS'Z', " +
+                "yyyy-MM-dd'T'HH:mm:ss'Z', yyyy-MM-dd HH:mm:ss");
     }
 }
