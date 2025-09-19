@@ -28,7 +28,6 @@ public class PublicCategoryController {
             @RequestParam(defaultValue = "0") int from,
             @Parameter(description = "количество категорий в наборе")
             @RequestParam(defaultValue = "10") int size) {
-        log.info("GET /categories - получение категорий: from={}, size={}", from, size);
         List<CategoryDto> categories = categoryService.getCategories(from, size);
         return ResponseEntity.ok(categories);
     }
@@ -37,7 +36,6 @@ public class PublicCategoryController {
     @Operation(summary = "Получение информации о категории по её идентификатору")
     public ResponseEntity<CategoryDto> getCategory(
             @Parameter(description = "id категории") @PathVariable Long catId) {
-        log.info("GET /categories/{} - получение категории", catId);
         CategoryDto categoryDto = categoryService.getCategoryById(catId);
         return ResponseEntity.ok(categoryDto);
     }

@@ -33,7 +33,6 @@ public class AdminCompilationController {
     public ResponseEntity<CompilationDto> createCompilation(
             @Valid @RequestBody NewCompilationDto newCompilationDto,
             HttpServletRequest request) {
-        log.info("POST /admin/compilations - создание подборки");
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
 
@@ -46,7 +45,6 @@ public class AdminCompilationController {
     public ResponseEntity<Void> deleteCompilation(
             @Parameter(description = "id подборки") @PathVariable Long compId,
             HttpServletRequest request) {
-        log.info("DELETE /admin/compilations/{} - удаление подборки", compId);
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
 
@@ -60,7 +58,6 @@ public class AdminCompilationController {
             @Parameter(description = "id подборки") @PathVariable Long compId,
             @Valid @RequestBody UpdateCompilationRequest updateCompilationRequest,
             HttpServletRequest request) {
-        log.info("PATCH /admin/compilations/{} - обновление подборки", compId);
 
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());

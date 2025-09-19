@@ -47,7 +47,6 @@ public class AdminEventController {
             @Parameter(description = "Количество элементов в наборе")
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
-        log.info("GET /admin/events - получение событий администратором");
 
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
@@ -62,7 +61,6 @@ public class AdminEventController {
             @Parameter(description = "ID события") @PathVariable Long eventId,
             @Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest,
             HttpServletRequest request) {
-        log.info("PATCH /admin/events/{} - обновление события администратором", eventId);
 
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());

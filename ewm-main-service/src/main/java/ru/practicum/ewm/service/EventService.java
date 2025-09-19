@@ -48,7 +48,6 @@ public class EventService {
 
     @Transactional
     public EventFullDto createEvent(Long userId, NewEventDto newEventDto) {
-        log.info("Создание события пользователем {}: {}", userId, newEventDto);
 
         LocalDateTime now = LocalDateTime.now();
         if (newEventDto.getEventDate().isBefore(now)) {
@@ -67,12 +66,10 @@ public class EventService {
 
         Event savedEvent = eventRepository.save(event);
 
-        log.info("Событие создано с ID: {}", savedEvent.getId());
         return eventMapper.toEventFullDto(savedEvent);
     }
 
     public List<EventShortDto> getUserEvents(Long userId, int from, int size) {
-        log.info("Получение событий пользователя {} с параметрами: from={}, size={}", userId, from, size);
 
         Pageable pageable = PageRequest.of(from / size, size);
         Page<Event> events = eventRepository.findByInitiatorId(userId, pageable);
@@ -81,7 +78,6 @@ public class EventService {
     }
 
     public EventFullDto getUserEvent(Long userId, Long eventId) {
-        log.info("Получение события {} пользователя {}", eventId, userId);
 
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Событие с ID " + eventId + " не найдено"));
@@ -91,7 +87,6 @@ public class EventService {
 
     @Transactional
     public EventFullDto updateUserEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
-        log.info("Обновление события {} пользователем {}: {}", eventId, userId, updateEventUserRequest);
 
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Событие с ID " + eventId + " не найдено"));
@@ -126,15 +121,12 @@ public class EventService {
 
         Event savedEvent = eventRepository.save(event);
 
-        log.info("Событие с ID {} обновлено", eventId);
         return eventMapper.toEventFullDto(savedEvent);
     }
 
     public List<EventFullDto> getAdminEvents(List<Long> users, List<EventState> states,
                                            List<Long> categories, LocalDateTime rangeStart,
                                            LocalDateTime rangeEnd, int from, int size) {
-        log.info("Получение событий администратором с параметрами: users={}, states={}, categories={}, " +
-                "rangeStart={}, rangeEnd={}, from={}, size={}", users, states, categories, rangeStart, rangeEnd, from, size);
 
         // Фильтруем пустые значения и нули
         List<Long> filteredUsers = users != null && !users.isEmpty() ? users.stream()
@@ -145,13 +137,9 @@ public class EventService {
                 .filter(id -> id != null && id > 0)
                 .toList() : null;
 
-        log.info("🔍 Оригинальные параметры: users={}, categories={}", users, categories);
-        log.info("🔧 Отфильтрованные параметры: filteredUsers={}, filteredCategories={}", filteredUsers, filteredCategories);
 
         Pageable pageable = PageRequest.of(from / size, size);
-        log.info("📄 Создана пагинация: page={}, size={}", from / size, size);
 
-        log.info("🔍 Выполняем запрос к базе данных...");
 
         // Создаем динамический запрос
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -189,13 +177,11 @@ public class EventService {
         query.orderBy(cb.desc(root.get("eventDate")));
 
         List<Event> allEvents = entityManager.createQuery(query).getResultList();
-        log.info("✅ Запрос к базе данных выполнен успешно. Найдено событий: {}", allEvents.size());
 
         // Реализуем пагинацию вручную
         int start = from;
         int end = Math.min(from + size, allEvents.size());
         List<Event> events = allEvents.subList(start, end);
-        log.info("📄 Применена пагинация: from={}, size={}, result={}", from, size, events.size());
 
         // Обновляем количество подтвержденных заявок для всех событий
         for (Event event : events) {
@@ -207,7 +193,6 @@ public class EventService {
 
     @Transactional
     public EventFullDto updateAdminEvent(Long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
-        log.info("Обновление события {} администратором: {}", eventId, updateEventAdminRequest);
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с ID " + eventId + " не найдено"));
@@ -244,7 +229,6 @@ public class EventService {
 
         Event savedEvent = eventRepository.save(event);
 
-        log.info("Событие с ID {} обновлено администратором", eventId);
         return eventMapper.toEventFullDto(savedEvent);
     }
 
@@ -252,9 +236,6 @@ public class EventService {
                                              LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                              Boolean onlyAvailable, EventSortType sort,
                                              int from, int size) {
-        log.info("Получение публичных событий с параметрами: text={}, categories={}, paid={}, " +
-                "rangeStart={}, rangeEnd={}, onlyAvailable={}, sort={}, from={}, size={}",
-                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
         // Устанавливаем значения по умолчанию только если они не переданы
         // Если rangeStart не передан, показываем все события (не фильтруем по дате)
@@ -268,8 +249,6 @@ public class EventService {
                 .filter(id -> id != null && id > 0)
                 .toList() : null;
 
-        log.info("🔍 Оригинальные параметры: categories={}", categories);
-        log.info("🔧 Отфильтрованные параметры: filteredCategories={}", filteredCategories);
 
         // Валидация параметров
         if (from < 0) {
@@ -339,13 +318,11 @@ public class EventService {
         }
 
         List<Event> allEvents = entityManager.createQuery(query).getResultList();
-        log.info("✅ Запрос к базе данных выполнен успешно. Найдено событий: {}", allEvents.size());
 
         // Реализуем пагинацию вручную
         int start = from;
         int end = Math.min(from + size, allEvents.size());
         List<Event> events = allEvents.subList(start, end);
-        log.info("📄 Применена пагинация: from={}, size={}, result={}", from, size, events.size());
 
         // Обновляем количество подтвержденных заявок для каждого события
         for (Event event : events) {
@@ -362,7 +339,6 @@ public class EventService {
     }
 
     public EventFullDto getPublicEvent(Long eventId) {
-        log.info("Получение публичного события с ID: {}", eventId);
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с ID " + eventId + " не найдено"));
@@ -375,7 +351,6 @@ public class EventService {
         Long currentViews = event.getViews() != null ? event.getViews() : 0L;
         event.setViews(currentViews + 1);
         eventRepository.save(event);
-        log.info("Счетчик просмотров для события {} увеличен с {} до {}", eventId, currentViews, event.getViews());
 
         // Обновляем количество подтвержденных заявок
         updateConfirmedRequests(eventId);
@@ -390,7 +365,6 @@ public class EventService {
 
     @Transactional
     public void updateConfirmedRequests(Long eventId) {
-        log.info("Обновление количества подтвержденных заявок для события {}", eventId);
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с ID " + eventId + " не найдено"));
@@ -399,7 +373,6 @@ public class EventService {
         event.setConfirmedRequests(confirmedCount);
         eventRepository.save(event);
 
-        log.info("Обновлено количество подтвержденных заявок для события {}: {}", eventId, confirmedCount);
     }
 
     private void updateEventFields(Event event, Object updateRequest) {

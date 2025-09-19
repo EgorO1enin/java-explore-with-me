@@ -38,7 +38,6 @@ public class AdminUserController {
             @Parameter(description = "Количество элементов в наборе")
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
-        log.info("GET /admin/users - получение пользователей администратором");
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
 
@@ -51,7 +50,6 @@ public class AdminUserController {
     public ResponseEntity<UserDto> createUser(
             @Valid @RequestBody NewUserRequest newUserRequest,
             HttpServletRequest request) {
-        log.info("POST /admin/users - создание пользователя администратором");
 
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
@@ -64,7 +62,6 @@ public class AdminUserController {
     public ResponseEntity<Void> deleteUser(
             @Parameter(description = "ID пользователя") @PathVariable Long userId,
             HttpServletRequest request) {
-        log.info("DELETE /admin/users/{} - удаление пользователя администратором", userId);
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
 

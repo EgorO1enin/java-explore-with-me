@@ -32,7 +32,6 @@ public class AdminCategoryController {
     public ResponseEntity<CategoryDto> createCategory(
             @Valid @RequestBody NewCategoryDto newCategoryDto,
             HttpServletRequest request) {
-        log.info("POST /admin/categories - создание категории администратором");
 
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
@@ -46,7 +45,6 @@ public class AdminCategoryController {
             @Parameter(description = "ID категории") @PathVariable Long catId,
             @Valid @RequestBody NewCategoryDto newCategoryDto,
             HttpServletRequest request) {
-        log.info("PATCH /admin/categories/{} - обновление категории администратором", catId);
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
 
@@ -59,7 +57,6 @@ public class AdminCategoryController {
     public ResponseEntity<Void> deleteCategory(
             @Parameter(description = "ID категории") @PathVariable Long catId,
             HttpServletRequest request) {
-        log.info("DELETE /admin/categories/{} - удаление категории администратором", catId);
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
 

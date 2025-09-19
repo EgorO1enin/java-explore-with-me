@@ -31,7 +31,6 @@ public class CompilationService {
     private final CompilationMapper compilationMapper;
 
     public List<CompilationDto> getCompilations(Boolean pinned, int from, int size) {
-        log.info("Получение подборок: pinned={}, from={}, size={}", pinned, from, size);
 
         Pageable pageable = PageRequest.of(from / size, size);
         Page<Compilation> compilations;
@@ -43,10 +42,8 @@ public class CompilationService {
         }
 
         List<Compilation> compilationList = compilations.getContent();
-        log.info("Найдено подборок: {}", compilationList.size());
 
         List<CompilationDto> result = compilationMapper.toCompilationDtoList(compilationList);
-        log.info("Результат маппинга: {} элементов", result.size());
 
         // Дополнительная защита: убеждаемся, что events в каждом CompilationDto не null
         for (CompilationDto compilationDto : result) {
@@ -61,7 +58,6 @@ public class CompilationService {
     }
 
     public CompilationDto getCompilation(Long compId) {
-        log.info("Получение подборки с ID: {}", compId);
 
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Подборка с ID " + compId + " не найдена"));
@@ -80,7 +76,6 @@ public class CompilationService {
 
     @Transactional
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
-        log.info("Создание подборки: {}", newCompilationDto);
 
         Compilation compilation = compilationMapper.toCompilation(newCompilationDto);
 
@@ -95,7 +90,6 @@ public class CompilationService {
 
     @Transactional
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest) {
-        log.info("Обновление подборки {}: {}", compId, updateCompilationRequest);
 
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Подборка с ID " + compId + " не найдена"));
@@ -118,7 +112,6 @@ public class CompilationService {
 
     @Transactional
     public void deleteCompilation(Long compId) {
-        log.info("Удаление подборки с ID: {}", compId);
 
         if (!compilationRepository.existsById(compId)) {
             throw new NotFoundException("Подборка с ID " + compId + " не найдена");

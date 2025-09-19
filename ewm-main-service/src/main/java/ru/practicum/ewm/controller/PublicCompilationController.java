@@ -30,7 +30,6 @@ public class PublicCompilationController {
             @RequestParam(defaultValue = "0") int from,
             @Parameter(description = "количество элементов в наборе")
             @RequestParam(defaultValue = "10") int size) {
-        log.info("GET /compilations - получение подборок: pinned={}, from={}, size={}", pinned, from, size);
         List<CompilationDto> compilations = compilationService.getCompilations(pinned, from, size);
         return ResponseEntity.ok(compilations);
     }
@@ -39,7 +38,6 @@ public class PublicCompilationController {
     @Operation(summary = "Получение подборки событий по его id")
     public ResponseEntity<CompilationDto> getCompilation(
             @Parameter(description = "id подборки") @PathVariable Long compId) {
-        log.info("GET /compilations/{} - получение подборки", compId);
         CompilationDto compilationDto = compilationService.getCompilation(compId);
         return ResponseEntity.ok(compilationDto);
     }

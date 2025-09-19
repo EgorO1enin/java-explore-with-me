@@ -49,7 +49,6 @@ public class PublicEventController {
             @Parameter(description = "количество событий в наборе")
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
-        log.info("GET /events - получение публичных событий");
 
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
@@ -63,7 +62,6 @@ public class PublicEventController {
     public ResponseEntity<EventFullDto> getEvent(
             @Parameter(description = "id события") @PathVariable Long id,
             HttpServletRequest request) {
-        log.info("GET /events/{} - получение публичного события", id);
 
         EventFullDto eventDto = eventService.getPublicEvent(id);
 

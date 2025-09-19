@@ -37,7 +37,6 @@ public class ParticipationRequestService {
     private final ParticipationRequestMapper participationRequestMapper;
 
     public List<ParticipationRequestDto> getUserRequests(Long userId) {
-        log.info("Получение запросов пользователя с ID: {}", userId);
 
         List<ParticipationRequest> requests = participationRequestRepository.findByRequesterId(userId);
         return requests.stream()
@@ -47,7 +46,6 @@ public class ParticipationRequestService {
 
     @Transactional
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
-        log.info("Создание запроса пользователя {} на участие в событии {}", userId, eventId);
 
         // Проверяем существование пользователя
         User requester = userRepository.findById(userId)
@@ -104,7 +102,6 @@ public class ParticipationRequestService {
 
     @Transactional
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
-        log.info("Отмена запроса {} пользователем {}", requestId, userId);
 
         ParticipationRequest request = participationRequestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Заявка с ID " + requestId + " не найдена"));
@@ -134,7 +131,6 @@ public class ParticipationRequestService {
     }
 
     public List<ParticipationRequestDto> getEventParticipants(Long userId, Long eventId) {
-        log.info("Получение запросов на участие в событии {} пользователя {}", eventId, userId);
 
         // Проверяем, что событие принадлежит пользователю
         Event event = eventRepository.findById(eventId)
@@ -153,7 +149,6 @@ public class ParticipationRequestService {
     @Transactional
     public EventRequestStatusUpdateResult changeRequestStatus(Long userId, Long eventId,
                                                              EventRequestStatusUpdateRequest request) {
-        log.info("Изменение статуса запросов для события {} пользователя {}", eventId, userId);
 
         // Проверяем, что событие принадлежит пользователю
         Event event = eventRepository.findById(eventId)

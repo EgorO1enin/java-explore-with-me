@@ -32,7 +32,6 @@ public class PrivateRequestController {
     public ResponseEntity<List<ParticipationRequestDto>> getUserRequests(
             @Parameter(description = "ID пользователя") @PathVariable Long userId,
             HttpServletRequest request) {
-        log.info("GET /users/{}/requests - получение запросов пользователя", userId);
 
         // Проверяем обязательные параметры
         if (userId == null || userId <= 0) {
@@ -52,7 +51,6 @@ public class PrivateRequestController {
             @Parameter(description = "ID пользователя") @PathVariable Long userId,
             @Parameter(description = "ID события") @RequestParam(required = false) Long eventId,
             HttpServletRequest request) {
-        log.info("POST /users/{}/requests?eventId={} - создание запроса на участие", userId, eventId);
 
         // Проверяем обязательные параметры
         if (userId == null || userId <= 0) {
@@ -77,7 +75,6 @@ public class PrivateRequestController {
             @Parameter(description = "ID пользователя") @PathVariable Long userId,
             @Parameter(description = "ID запроса") @PathVariable Long requestId,
             HttpServletRequest request) {
-        log.info("PATCH /users/{}/requests/{}/cancel - отмена запроса", userId, requestId);
 
         // Проверяем обязательные параметры
         if (userId == null || userId <= 0) {

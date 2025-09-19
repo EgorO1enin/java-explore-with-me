@@ -41,7 +41,6 @@ public class PrivateEventController {
             @Parameter(description = "ID пользователя") @PathVariable Long userId,
             @Valid @RequestBody NewEventDto newEventDto,
             HttpServletRequest request) {
-        log.info("POST /users/{}/events - создание события", userId);
 
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
@@ -58,7 +57,6 @@ public class PrivateEventController {
             @Parameter(description = "Количество элементов в наборе")
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
-        log.info("GET /users/{}/events - получение событий пользователя", userId);
 
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
@@ -72,7 +70,6 @@ public class PrivateEventController {
             @Parameter(description = "ID пользователя") @PathVariable Long userId,
             @Parameter(description = "ID события") @PathVariable Long eventId,
             HttpServletRequest request) {
-        log.info("GET /users/{}/events/{} - получение события пользователя", userId, eventId);
 
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
@@ -87,7 +84,6 @@ public class PrivateEventController {
             @Parameter(description = "ID события") @PathVariable Long eventId,
             @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest,
             HttpServletRequest request) {
-        log.info("PATCH /users/{}/events/{} - обновление события пользователя", userId, eventId);
 
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
@@ -101,7 +97,6 @@ public class PrivateEventController {
             @Parameter(description = "ID пользователя") @PathVariable Long userId,
             @Parameter(description = "ID события") @PathVariable Long eventId,
             HttpServletRequest request) {
-        log.info("GET /users/{}/events/{}/requests - получение запросов на участие в событии", userId, eventId);
 
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
@@ -116,7 +111,6 @@ public class PrivateEventController {
             @Parameter(description = "ID события") @PathVariable Long eventId,
             @Valid @RequestBody EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest,
             HttpServletRequest request) {
-        log.info("PATCH /users/{}/events/{}/requests - изменение статуса запросов", userId, eventId);
 
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());

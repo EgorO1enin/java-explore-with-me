@@ -20,7 +20,6 @@ public class StatsService {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public void saveHit(String app, String uri, String ip, LocalDateTime timestamp) {
-        log.info("📊 Сохранение статистики: app={}, uri={}, ip={}, timestamp={}", app, uri, ip, timestamp);
 
         try {
             EndpointHit endpointHit = EndpointHit.builder()
@@ -30,18 +29,13 @@ public class StatsService {
                     .timestamp(timestamp)
                     .build();
 
-            log.info("🔧 Создан EndpointHit: app={}, uri={}, ip={}, timestamp={}",
-                    endpointHit.getApp(), endpointHit.getUri(), endpointHit.getIp(),
-                    endpointHit.getTimestamp());
             statsClient.saveHit(app, uri, ip, timestamp);
-            log.info("✅ Статистика успешно сохранена");
         } catch (Exception e) {
             log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage(), e);
         }
     }
 
     public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        log.info("Получение статистики: start={}, end={}, uris={}, unique={}", start, end, uris, unique);
 
         try {
             return statsClient.getStats(start, end, uris, unique);
@@ -52,7 +46,6 @@ public class StatsService {
     }
 
     public Long getEventViews(Long eventId) {
-        log.info("Получение количества просмотров для события {}", eventId);
 
         LocalDateTime start = LocalDateTime.now().minusYears(1);
         LocalDateTime end = LocalDateTime.now();
