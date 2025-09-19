@@ -2,9 +2,9 @@ spring:
   application:
     name: ewm-main-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/ewm_stats
-    username: e.olenin
-    password: 1234
+    url: jdbc:postgresql://stats-db:5432/ewm_stats
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -46,9 +46,9 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
-# Конфигурация для stats-client (для локальной разработки)
+# Конфигурация для stats-client
 stats:
   client:
-    url: http://localhost:9090
+    url: http://stats-server:9090
     connect-timeout: 5000
     read-timeout: 10000
