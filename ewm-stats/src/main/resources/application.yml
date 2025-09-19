@@ -48,3 +48,5 @@ jackson:
     write-dates-as-timestamps: false
   deserialization:
     fail-on-unknown-properties: false
+  date-format: yyyy-MM-dd HH:mm:ss
+  time-zone: UTC

@@ -58,26 +58,10 @@ public class AdminCompilationController {
             @Parameter(description = "id подборки") @PathVariable Long compId,
             @Valid @RequestBody UpdateCompilationRequest updateCompilationRequest,
             HttpServletRequest request) {
-        log.info("🔧 PATCH /admin/compilations/{} - обновление подборки", compId);
-        log.info("📊 Данные для обновления: {}", updateCompilationRequest);
-        log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
+        log.info("PATCH /admin/compilations/{} - обновление подборки", compId);
 
-        try {
-            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-            log.info("✅ Статистика сохранена успешно");
-        } catch (Exception e) {
-            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
-        }
-
-        try {
-            CompilationDto compilation = compilationService.updateCompilation(compId, updateCompilationRequest);
-            log.info("✅ Подборка {} успешно обновлена: title={}, pinned={}, events={}",
-                    compId, compilation.getTitle(), compilation.getPinned(),
-                    compilation.getEvents() != null ? compilation.getEvents().size() : 0);
-            return ResponseEntity.ok(compilation);
-        } catch (Exception e) {
-            log.error("❌ Ошибка при обновлении подборки {}: {}", compId, e.getMessage(), e);
-            throw e;
-        }
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        CompilationDto compilation = compilationService.updateCompilation(compId, updateCompilationRequest);
+        return ResponseEntity.ok(compilation);
     }
 }

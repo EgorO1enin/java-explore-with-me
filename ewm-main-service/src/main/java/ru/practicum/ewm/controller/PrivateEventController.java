@@ -41,28 +41,11 @@ public class PrivateEventController {
             @Parameter(description = "ID пользователя") @PathVariable Long userId,
             @Valid @RequestBody NewEventDto newEventDto,
             HttpServletRequest request) {
-        log.info("🆕 POST /users/{}/events - создание события", userId);
-        log.info("📊 Данные события: title={}, eventDate={}, category={}, paid={}",
-                newEventDto.getTitle(), newEventDto.getEventDate(),
-                newEventDto.getCategory(), newEventDto.getPaid());
-        log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
+        log.info("POST /users/{}/events - создание события", userId);
 
-        try {
-            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-            log.info("✅ Статистика сохранена успешно");
-        } catch (Exception e) {
-            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
-        }
-
-        try {
-            EventFullDto event = eventService.createEvent(userId, newEventDto);
-            log.info("✅ Событие создано успешно: id={}, title={}, state={}",
-                    event.getId(), event.getTitle(), event.getState());
-            return ResponseEntity.status(HttpStatus.CREATED).body(event);
-        } catch (Exception e) {
-            log.error("❌ Ошибка при создании события: {}", e.getMessage(), e);
-            throw e;
-        }
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        EventFullDto event = eventService.createEvent(userId, newEventDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(event);
     }
 
     @GetMapping
@@ -74,29 +57,11 @@ public class PrivateEventController {
             @Parameter(description = "Количество элементов в наборе")
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
-        log.info("📋 GET /users/{}/events - получение событий пользователя", userId);
-        log.info("📊 Параметры: from={}, size={}", from, size);
-        log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
+        log.info("GET /users/{}/events - получение событий пользователя", userId);
 
-        try {
-            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-            log.info("✅ Статистика сохранена успешно");
-        } catch (Exception e) {
-            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
-        }
-
-        try {
-            List<EventShortDto> events = eventService.getUserEvents(userId, from, size);
-            log.info("✅ Найдено событий пользователя {}: {}", userId, events.size());
-            if (!events.isEmpty()) {
-                log.info("📋 Первое событие: id={}, title={}, state={}",
-                        events.get(0).getId(), events.get(0).getTitle());
-            }
-            return ResponseEntity.ok(events);
-        } catch (Exception e) {
-            log.error("❌ Ошибка при получении событий пользователя {}: {}", userId, e.getMessage(), e);
-            throw e;
-        }
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        List<EventShortDto> events = eventService.getUserEvents(userId, from, size);
+        return ResponseEntity.ok(events);
     }
 
     @GetMapping("/{eventId}")
@@ -105,25 +70,11 @@ public class PrivateEventController {
             @Parameter(description = "ID пользователя") @PathVariable Long userId,
             @Parameter(description = "ID события") @PathVariable Long eventId,
             HttpServletRequest request) {
-        log.info("🔍 GET /users/{}/events/{} - получение события пользователя", userId, eventId);
-        log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
+        log.info("GET /users/{}/events/{} - получение события пользователя", userId, eventId);
 
-        try {
-            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-            log.info("✅ Статистика сохранена успешно");
-        } catch (Exception e) {
-            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
-        }
-
-        try {
-            EventFullDto event = eventService.getUserEvent(userId, eventId);
-            log.info("✅ Событие найдено: id={}, title={}, state={}, confirmedRequests={}",
-                    event.getId(), event.getTitle(), event.getState(), event.getConfirmedRequests());
-            return ResponseEntity.ok(event);
-        } catch (Exception e) {
-            log.error("❌ Ошибка при получении события {} пользователя {}: {}", eventId, userId, e.getMessage(), e);
-            throw e;
-        }
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        EventFullDto event = eventService.getUserEvent(userId, eventId);
+        return ResponseEntity.ok(event);
     }
 
     @PatchMapping("/{eventId}")
@@ -133,26 +84,11 @@ public class PrivateEventController {
             @Parameter(description = "ID события") @PathVariable Long eventId,
             @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest,
             HttpServletRequest request) {
-        log.info("🔧 PATCH /users/{}/events/{} - обновление события пользователя", userId, eventId);
-        log.info("📊 Данные для обновления: {}", updateEventUserRequest);
-        log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
+        log.info("PATCH /users/{}/events/{} - обновление события пользователя", userId, eventId);
 
-        try {
-            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-            log.info("✅ Статистика сохранена успешно");
-        } catch (Exception e) {
-            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
-        }
-
-        try {
-            EventFullDto event = eventService.updateUserEvent(userId, eventId, updateEventUserRequest);
-            log.info("✅ Событие {} пользователя {} успешно обновлено: title={}, state={}",
-                    eventId, userId, event.getTitle(), event.getState());
-            return ResponseEntity.ok(event);
-        } catch (Exception e) {
-            log.error("❌ Ошибка при обновлении события {} пользователя {}: {}", eventId, userId, e.getMessage(), e);
-            throw e;
-        }
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        EventFullDto event = eventService.updateUserEvent(userId, eventId, updateEventUserRequest);
+        return ResponseEntity.ok(event);
     }
 
     @GetMapping("/{eventId}/requests")
@@ -161,29 +97,11 @@ public class PrivateEventController {
             @Parameter(description = "ID пользователя") @PathVariable Long userId,
             @Parameter(description = "ID события") @PathVariable Long eventId,
             HttpServletRequest request) {
-        log.info("📋 GET /users/{}/events/{}/requests - получение запросов на участие в событии", userId, eventId);
-        log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
+        log.info("GET /users/{}/events/{}/requests - получение запросов на участие в событии", userId, eventId);
 
-        try {
-            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-            log.info("✅ Статистика сохранена успешно");
-        } catch (Exception e) {
-            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
-        }
-
-        try {
-            List<ParticipationRequestDto> requests = participationRequestService.getEventParticipants(userId, eventId);
-            log.info("✅ Найдено запросов на участие в событии {}: {}", eventId, requests.size());
-            if (!requests.isEmpty()) {
-                log.info("📋 Первый запрос: id={}, status={}, requester={}",
-                        requests.get(0).getId(), requests.get(0).getStatus(), requests.get(0).getRequester());
-            }
-            return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-            log.error("❌ Ошибка при получении запросов на участие в событии {} пользователя {}: {}",
-                    eventId, userId, e.getMessage(), e);
-            throw e;
-        }
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        List<ParticipationRequestDto> requests = participationRequestService.getEventParticipants(userId, eventId);
+        return ResponseEntity.ok(requests);
     }
 
     @PatchMapping("/{eventId}/requests")
@@ -193,27 +111,11 @@ public class PrivateEventController {
             @Parameter(description = "ID события") @PathVariable Long eventId,
             @Valid @RequestBody EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest,
             HttpServletRequest request) {
-        log.info("🔧 PATCH /users/{}/events/{}/requests - изменение статуса запросов", userId, eventId);
-        log.info("📊 Данные для обновления: {}", eventRequestStatusUpdateRequest);
-        log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
+        log.info("PATCH /users/{}/events/{}/requests - изменение статуса запросов", userId, eventId);
 
-        try {
-            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-            log.info("✅ Статистика сохранена успешно");
-        } catch (Exception e) {
-            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
-        }
-
-        try {
-            EventRequestStatusUpdateResult result = participationRequestService.changeRequestStatus(
-                    userId, eventId, eventRequestStatusUpdateRequest);
-            log.info("✅ Статус запросов изменен успешно: confirmed={}, rejected={}",
-                    result.getConfirmedRequests().size(), result.getRejectedRequests().size());
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            log.error("❌ Ошибка при изменении статуса запросов для события {} пользователя {}: {}",
-                    eventId, userId, e.getMessage(), e);
-            throw e;
-        }
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        EventRequestStatusUpdateResult result = participationRequestService.changeRequestStatus(
+                userId, eventId, eventRequestStatusUpdateRequest);
+        return ResponseEntity.ok(result);
     }
 }

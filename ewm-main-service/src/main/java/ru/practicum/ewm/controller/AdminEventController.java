@@ -47,31 +47,11 @@ public class AdminEventController {
             @Parameter(description = "Количество элементов в наборе")
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
-        log.info("🔍 GET /admin/events - получение событий администратором");
-        log.info("📊 Параметры запроса: users={}, states={}, categories={}, rangeStart={}, rangeEnd={}, from={}, size={}",
-                users, states, categories, rangeStart, rangeEnd, from, size);
-        log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
+        log.info("GET /admin/events - получение событий администратором");
 
-        try {
-            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-            log.info("✅ Статистика сохранена успешно");
-        } catch (Exception e) {
-            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
-        }
-
-        try {
-            List<EventFullDto> events = eventService.getAdminEvents(users, states, categories, rangeStart, rangeEnd, from, size);
-            log.info("✅ Найдено событий: {}", events.size());
-            if (!events.isEmpty()) {
-                log.info("📋 Первое событие: id={}, title={}, state={}, confirmedRequests={}",
-                        events.get(0).getId(), events.get(0).getTitle(),
-                        events.get(0).getState(), events.get(0).getConfirmedRequests());
-            }
-            return ResponseEntity.ok(events);
-        } catch (Exception e) {
-            log.error("❌ Ошибка при получении событий: {}", e.getMessage(), e);
-            throw e;
-        }
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        List<EventFullDto> events = eventService.getAdminEvents(users, states, categories, rangeStart, rangeEnd, from, size);
+        return ResponseEntity.ok(events);
     }
 
     @PatchMapping("/{eventId}")
@@ -80,25 +60,10 @@ public class AdminEventController {
             @Parameter(description = "ID события") @PathVariable Long eventId,
             @Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest,
             HttpServletRequest request) {
-        log.info("🔧 PATCH /admin/events/{} - обновление события администратором", eventId);
-        log.info("📊 Данные для обновления: {}", updateEventAdminRequest);
-        log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
+        log.info("PATCH /admin/events/{} - обновление события администратором", eventId);
 
-        try {
-            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-            log.info("✅ Статистика сохранена успешно");
-        } catch (Exception e) {
-            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
-        }
-
-        try {
-            EventFullDto event = eventService.updateAdminEvent(eventId, updateEventAdminRequest);
-            log.info("✅ Событие {} успешно обновлено: title={}, state={}, confirmedRequests={}",
-                    eventId, event.getTitle(), event.getState(), event.getConfirmedRequests());
-            return ResponseEntity.ok(event);
-        } catch (Exception e) {
-            log.error("❌ Ошибка при обновлении события {}: {}", eventId, e.getMessage(), e);
-            throw e;
-        }
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        EventFullDto event = eventService.updateAdminEvent(eventId, updateEventAdminRequest);
+        return ResponseEntity.ok(event);
     }
 }

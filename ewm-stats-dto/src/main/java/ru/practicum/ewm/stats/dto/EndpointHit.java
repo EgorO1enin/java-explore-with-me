@@ -1,7 +1,6 @@
 package ru.practicum.ewm.stats.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.ewm.stats.dto.CustomLocalDateTimeDeserializer;
 
 import java.time.LocalDateTime;
 
@@ -37,7 +35,6 @@ public class EndpointHit {
 
     @NotNull(message = "Timestamp cannot be null")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
     @Schema(description = "Дата и время, когда был совершен запрос к эндпоинту",
             example = "2022-09-06 11:00:23",
             requiredMode = Schema.RequiredMode.REQUIRED)

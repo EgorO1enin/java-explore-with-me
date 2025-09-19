@@ -9,8 +9,7 @@ WORKDIR /app
 # Копирование файлов проекта
 COPY pom.xml .
 COPY ewm-stats-dto/pom.xml ewm-stats-dto/
-COPY ewm-stats-client/pom.xml ewm-stats-client/
-COPY ewm-stats/pom.xml ewm-stats/
+COPY ewm-stats-client/pom.xml ewm-stats-clientCOPY ewm-stats/pom.xml ewm-stats/
 COPY ewm-main-service/pom.xml ewm-main-service/
 
 # Копирование исходного кода

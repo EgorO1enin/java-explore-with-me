@@ -50,31 +50,11 @@ public class PublicEventController {
             @Parameter(description = "количество событий в наборе")
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
-        log.info("🌐 GET /events - получение публичных событий");
-        log.info("📊 Параметры: text={}, categories={}, paid={}, rangeStart={}, rangeEnd={}, onlyAvailable={}, sort={}, from={}, size={}",
-                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
-        log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
+        log.info("GET /events - получение публичных событий");
 
-        try {
-            statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-            log.info("✅ Статистика сохранена успешно");
-        } catch (Exception e) {
-            log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
-        }
-
-        try {
-            List<EventShortDto> events = eventService.getPublicEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
-            log.info("✅ Найдено публичных событий: {}", events.size());
-            if (!events.isEmpty()) {
-                log.info("📋 Первое событие: id={}, title={}, views={}, confirmedRequests={}",
-                        events.get(0).getId(), events.get(0).getTitle(),
-                        events.get(0).getViews(), events.get(0).getConfirmedRequests());
-            }
-            return ResponseEntity.ok(events);
-        } catch (Exception e) {
-            log.error("❌ Ошибка при получении публичных событий: {}", e.getMessage(), e);
-            throw e;
-        }
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        List<EventShortDto> events = eventService.getPublicEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+        return ResponseEntity.ok(events);
     }
 
     @GetMapping("/{id}")
@@ -82,27 +62,13 @@ public class PublicEventController {
     public ResponseEntity<EventFullDto> getEvent(
             @Parameter(description = "id события") @PathVariable Long id,
             HttpServletRequest request) {
-        log.info("🔍 GET /events/{} - получение публичного события", id);
-        log.info("🌐 IP адрес: {}, User-Agent: {}", request.getRemoteAddr(), request.getHeader("User-Agent"));
+        log.info("GET /events/{} - получение публичного события", id);
 
-        try {
-            EventFullDto eventDto = eventService.getPublicEvent(id);
+        EventFullDto eventDto = eventService.getPublicEvent(id);
 
-            // Сохраняем статистику ПОСЛЕ получения события
-            try {
-                statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-                log.info("✅ Статистика сохранена успешно");
-            } catch (Exception e) {
-                log.error("❌ Ошибка при сохранении статистики: {}", e.getMessage());
-            }
+        // Сохраняем статистику ПОСЛЕ получения события
+        statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
 
-            log.info("✅ Публичное событие найдено: id={}, title={}, state={}, views={}, confirmedRequests={}",
-                    eventDto.getId(), eventDto.getTitle(), eventDto.getState(),
-                    eventDto.getViews(), eventDto.getConfirmedRequests());
-            return ResponseEntity.ok(eventDto);
-        } catch (Exception e) {
-            log.error("❌ Ошибка при получении публичного события {}: {}", id, e.getMessage(), e);
-            throw e;
-        }
+        return ResponseEntity.ok(eventDto);
     }
 }
