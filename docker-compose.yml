@@ -11,11 +11,32 @@ services:
       - "5432:5432"
     volumes:
       - stats-db-data:/var/lib/postgresql/data
-      - ./init-db:/docker-entrypoint-initdb.d
+      - ./init-db/01-init-stats-db.sql:/docker-entrypoint-initdb.d/01-init-stats-db.sql
     networks:
       - ewm-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d ewm_stats"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  main-db:
+    image: postgres:16
+    container_name: ewm-main-db
+    environment:
+      POSTGRES_DB: ewm_main
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5433:5432"
+    volumes:
+      - main-db-data:/var/lib/postgresql/data
+      - ./init-db/02-init-main-db.sql:/docker-entrypoint-initdb.d/02-init-main-db.sql
+    networks:
+      - ewm-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ewm_main"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -50,7 +71,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      stats-db:
+      main-db:
         condition: service_healthy
       stats-server:
         condition: service_healthy
@@ -62,6 +83,7 @@ services:
 
 volumes:
   stats-db-data:
+  main-db-data:
 
 networks:
   ewm-network:

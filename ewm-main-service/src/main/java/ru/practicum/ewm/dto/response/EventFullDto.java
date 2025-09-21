@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.ewm.dto.Location;
+import ru.practicum.ewm.dto.LocationDto;
 import ru.practicum.ewm.model.enums.EventState;
 
 import java.time.LocalDateTime;
@@ -25,7 +25,7 @@ public class EventFullDto {
     @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
     private LocalDateTime eventDate;
     private UserShortDto initiator;
-    private Location location;
+    private LocationDto location;
     private Boolean paid;
     private Integer participantLimit;
     @JsonSerialize(using = CustomLocalDateTimeSerializer.class)

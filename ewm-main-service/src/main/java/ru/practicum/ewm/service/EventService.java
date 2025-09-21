@@ -13,6 +13,8 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import ru.practicum.ewm.dto.Location;
+import ru.practicum.ewm.dto.LocationDto;
 import ru.practicum.ewm.dto.request.NewEventDto;
 import ru.practicum.ewm.dto.request.UpdateEventAdminRequest;
 import ru.practicum.ewm.dto.request.UpdateEventUserRequest;
@@ -137,6 +139,10 @@ public class EventService {
                 .filter(id -> id != null && id > 0)
                 .toList() : null;
 
+        // Валидация дат
+        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
+            throw new BadRequestException("Дата начала поиска не может быть позже даты окончания");
+        }
 
         Pageable pageable = PageRequest.of(from / size, size);
 
@@ -399,8 +405,7 @@ public class EventService {
             event.setEventDate(request.getEventDate());
         }
         if (request.getLocation() != null) {
-            event.setLat(request.getLocation().getLat());
-            event.setLon(request.getLocation().getLon());
+            event.setLocation(convertLocationDtoToLocation(request.getLocation()));
         }
         if (request.getPaid() != null) {
             event.setPaid(request.getPaid());
@@ -430,8 +435,7 @@ public class EventService {
             event.setEventDate(request.getEventDate());
         }
         if (request.getLocation() != null) {
-            event.setLat(request.getLocation().getLat());
-            event.setLon(request.getLocation().getLon());
+            event.setLocation(convertLocationDtoToLocation(request.getLocation()));
         }
         if (request.getPaid() != null) {
             event.setPaid(request.getPaid());
@@ -445,5 +449,15 @@ public class EventService {
         if (request.getTitle() != null) {
             event.setTitle(request.getTitle());
         }
+    }
+
+    private Location convertLocationDtoToLocation(LocationDto locationDto) {
+        if (locationDto == null) {
+            return null;
+        }
+        return Location.builder()
+                .lat(locationDto.getLat())
+                .lon(locationDto.getLon())
+                .build();
     }
 }

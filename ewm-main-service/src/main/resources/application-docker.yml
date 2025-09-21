@@ -2,7 +2,7 @@ spring:
   application:
     name: ewm-main-service
   datasource:
-    url: jdbc:postgresql://stats-db:5432/ewm_stats
+    url: jdbc:postgresql://main-db:5432/ewm_main
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -14,10 +14,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:init-db/02-init-main-db.sql
 
 server:
   port: 8080

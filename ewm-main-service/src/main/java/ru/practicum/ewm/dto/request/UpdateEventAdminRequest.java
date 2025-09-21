@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.ewm.dto.Location;
+import ru.practicum.ewm.dto.LocationDto;
 
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Min;
@@ -28,7 +28,7 @@ public class UpdateEventAdminRequest {
     @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
     private LocalDateTime eventDate;
 
-    private Location location;
+    private LocationDto location;
 
     private Boolean paid;
 

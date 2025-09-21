@@ -72,7 +72,7 @@ public class StatsController {
                 required = true,
                 example = "2022-09-06 11:00:23"
             )
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+            @RequestParam(required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
 
             @Parameter(
                 description = "Дата и время конца диапазона за который нужно выгрузить статистику " +
@@ -80,7 +80,7 @@ public class StatsController {
                 required = true,
                 example = "2022-09-06 12:00:23"
             )
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+            @RequestParam(required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
 
             @Parameter(
                 description = "Список URI для которых нужно выгрузить статистику",
@@ -95,18 +95,6 @@ public class StatsController {
             )
             @RequestParam(defaultValue = "false") Boolean unique) {
 
-        // Валидация: start и end обязательны
-        if (start == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        if (end == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Валидация: start не может быть больше end
-        if (start.isAfter(end)) {
-            return ResponseEntity.badRequest().build();
-        }
 
         List<ViewStats> stats = statsService.getStats(start, end, uris, unique);
         return ResponseEntity.ok(stats);
