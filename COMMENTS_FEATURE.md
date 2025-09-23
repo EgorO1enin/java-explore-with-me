@@ -6,50 +6,73 @@
 ## Архитектура
 
 ### Модели
-- **Comment** - основная модель комментария
-- **CommentStatus** - enum со статусами: PENDING, APPROVED, REJECTED
+- **Comment** — основная модель комментария
+- **CommentStatus** — enum: `PENDING`, `APPROVED`, `REJECTED`
 
-### DTO классы
-- **NewCommentDto** - для создания комментария
-- **CommentDto** - для возврата данных комментария
-- **UpdateCommentRequest** - для обновления комментария пользователем
-- **UpdateCommentAdminRequest** - для модерации администратором
+### DTO
+- **NewCommentDto** — создание
+- **CommentDto** — ответ клиенту
+- **UpdateCommentRequest** — обновление пользователя
+- **UpdateCommentAdminRequest** — модерация администратором
 
-### API Endpoints
+### Пагинация
+Для коллекций используется пара параметров `from` (offset) и `size` (limit).
 
-#### Публичные (Public)
-- `GET /events/{eventId}/comments` - получение комментариев к событию (только одобренные)
-- `GET /events/comments/search?text={text}` - поиск комментариев по тексту
+## API Endpoints
 
-#### Приватные (Private)
-- `POST /users/{userId}/events/{eventId}/comments` - создание комментария
-- `GET /users/{userId}/comments` - получение комментариев пользователя
-- `PATCH /users/{userId}/comments/{commentId}` - обновление комментария
-- `DELETE /users/{userId}/comments/{commentId}` - удаление комментария
+### Публичные (Public)
+- `GET /events/{eventId}/comments` — одобренные комментарии события
+- `GET /events/comments/search?text=...` — поиск среди `APPROVED`
 
-#### Административные (Admin)
-- `GET /admin/comments` - получение комментариев для модерации
-- `PATCH /admin/comments/{commentId}` - модерация комментария (APPROVED/REJECTED)
-- `DELETE /admin/comments/{commentId}` - удаление комментария администратором
+Примеры:
+```bash
+curl "http://localhost:8080/events/10/comments?from=0&size=10"
+curl "http://localhost:8080/events/comments/search?text=spring&from=0&size=10"
+```
 
-## Бизнес-логика
+### Приватные (Private)
+- `POST /users/{userId}/events/{eventId}/comments` — создать `PENDING`
+- `GET /users/{userId}/comments` — список своих
+- `PATCH /users/{userId}/comments/{commentId}` — обновить `PENDING`
+- `DELETE /users/{userId}/comments/{commentId}` — удалить `PENDING`
 
-### Создание комментария
-- Комментарий создается со статусом PENDING
-- Можно комментировать только опубликованные события
-- Текст комментария: 1-2000 символов
+Примеры:
+```bash
+curl -X POST "http://localhost:8080/users/1/events/10/comments" \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Отличное событие!"}'
 
-### Редактирование комментария
-- Можно редактировать только комментарии в статусе PENDING
-- При редактировании обновляется поле `updated`
+curl "http://localhost:8080/users/1/comments?from=0&size=10"
 
-### Удаление комментария
-- Пользователь может удалять только свои комментарии в статусе PENDING
-- Администратор может удалять любые комментарии
+curl -X PATCH "http://localhost:8080/users/1/comments/5" \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Обновил комментарий"}'
 
-### Модерация
-- Администратор может одобрить (APPROVED) или отклонить (REJECTED) комментарий
-- Публично видны только одобренные комментарии
+curl -X DELETE "http://localhost:8080/users/1/comments/5"
+```
+
+### Административные (Admin)
+- `GET /admin/comments` — получить `PENDING`
+- `PATCH /admin/comments/{commentId}` — модерация (`APPROVED`/`REJECTED`)
+- `DELETE /admin/comments/{commentId}` — удалить любой
+
+Примеры:
+```bash
+curl "http://localhost:8080/admin/comments?from=0&size=10"
+
+curl -X PATCH "http://localhost:8080/admin/comments/5" \
+  -H "Content-Type: application/json" \
+  -d '{"status":"APPROVED"}'
+
+curl -X DELETE "http://localhost:8080/admin/comments/5"
+```
+
+## Бизнес-правила
+- Комментировать можно только опубликованные события
+- Текст 1..2000 символов
+- Редактирование/удаление пользователем — только `PENDING`
+- Публично видны только `APPROVED`
+- При обновлении заполняется `updated`
 
 ## База данных
 
@@ -66,27 +89,15 @@ CREATE TABLE comments (
 );
 ```
 
-### Индексы
-- `idx_comments_author_id` - для поиска по автору
-- `idx_comments_event_id` - для поиска по событию
-- `idx_comments_status` - для фильтрации по статусу
-- `idx_comments_created` - для сортировки по дате
+Индексы:
+- `idx_comments_author_id`
+- `idx_comments_event_id`
+- `idx_comments_status`
+- `idx_comments_created`
+
+## Интеграция со статистикой
+Публичные и приватные эндпоинты сохраняют хиты через `StatsService`.
 
 ## Тестирование
-
-Создана Postman коллекция `postman/feature.json` с тестами для всех эндпоинтов:
-- Создание комментария
-- Получение комментариев
-- Обновление комментария
-- Удаление комментария
-- Модерация комментария
-- Поиск комментариев
-
-## Интеграция
-
-Функциональность полностью интегрирована в существующую архитектуру:
-- Использует существующие сервисы (UserService, EventService)
-- Следует паттернам проекта (DTO, Mapper, Repository)
-- Интегрирована со статистикой (StatsService)
-- Следует стилю кодирования проекта
+Postman коллекция: `postman/feature.json` — сценарии для всех эндпоинтов.
 

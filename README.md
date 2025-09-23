@@ -1,262 +1,160 @@
-# Explore With Me - Сервис статистики
+# Explore With Me — Основной сервис и сервис статистики
 
 ## Описание проекта
 
-ExploreWithMe — это платформа-афиша для организации и поиска интересных мероприятий. Проект состоит из двух сервисов:
-- **Основной сервис** (ewm-main-service) - содержит всю бизнес-логику приложения
-- **Сервис статистики** (ewm-stats) - собирает аналитику по просмотрам и активности
+ExploreWithMe — платформа-афиша для организации и поиска мероприятий. Проект состоит из двух сервисов:
+- **Основной сервис** (`ewm-main-service`) — бизнес-логика, события, пользователи, комментарии
+- **Сервис статистики** (`ewm-stats`) — сбор и предоставление аналитики по просмотрам
 
 ## Структура проекта
 
 ```
 explore-with-me/
-├── ewm-stats-dto/          # Общие DTO классы с аннотациями Swagger
-├── ewm-stats-client/       # HTTP клиент для сервиса статистики (WebClient + Feign)
-├── ewm-stats/              # Основной сервис статистики с Swagger UI
-├── docker-compose.yml      # Конфигурация Docker с health checks
-└── pom.xml                 # Родительский POM с управлением зависимостями
+├── ewm-main-service/       # Основной сервис (REST API, комментарии, события)
+├── ewm-stats/              # Сервис статистики с Swagger UI
+├── ewm-stats-client/       # HTTP-клиент для сервиса статистики
+├── ewm-stats-dto/          # Общие DTO для сервиса статистики
+├── init-db/                # SQL-скрипты инициализации БД (stats и main)
+├── docker-compose.yml      # Композиция обоих сервисов и БД
+└── pom.xml                 # Родительский POM
 ```
 
 ## Требования
 
 - Java 21
 - Maven 3.6+
-- PostgreSQL 16.1 (для локального запуска)
+- Docker (для упрощённого запуска)
 
-## Локальный запуск
-
-### 1. Подготовка базы данных
-
-Создайте базу данных PostgreSQL:
-```sql
-CREATE DATABASE ewm_stats;
-CREATE USER postgres WITH PASSWORD 'postgres';
-GRANT ALL PRIVILEGES ON DATABASE ewm_stats TO postgres;
-```
-
-### 2. Сборка проекта
+## Быстрый старт в Docker
 
 ```bash
-# Сборка всех модулей
-mvn clean install
+# Сборка образов и запуск всех сервисов
+docker-compose up -d --build
 
-# Или сборка по модулям
-mvn clean install -pl ewm-stats-dto
-mvn clean install -pl ewm-stats-client
-mvn clean install -pl ewm-stats
+# Просмотр статуса
+docker-compose ps
 ```
 
-### 3. Запуск сервиса статистики
+Доступные сервисы:
+- Основной сервис: http://localhost:8080
+- Сервис статистики: http://localhost:9090
+- Swagger UI (stats): http://localhost:9090/swagger-ui.html
+- API Docs (stats): http://localhost:9090/api-docs
+- PostgreSQL (main): localhost:5433, БД `ewm_main` (postgres/postgres)
+- PostgreSQL (stats): localhost:5432, БД `ewm_stats` (postgres/postgres)
+
+## Локальный запуск без Docker
+
+### 1) Базы данных
+
+Поднимите две БД PostgreSQL или используйте `docker-compose` только для БД:
 
 ```bash
-# Переход в модуль сервиса
+docker-compose up -d stats-db main-db
+```
+
+### 2) Сервис статистики
+
+```bash
 cd ewm-stats
-
-# Запуск приложения
 mvn spring-boot:run
 ```
 
-Сервис будет доступен по адресу: http://localhost:9090
+### 3) Основной сервис
 
-### 4. Проверка работы
-
-#### Health check
 ```bash
-curl http://localhost:9090/actuator/health
+cd ewm-main-service
+mvn spring-boot:run
 ```
 
-#### Сохранение статистики
+Профили и параметры подключений прописаны в `application.yml`/`application-docker.yml` каждого сервиса.
+
+## Функциональность комментариев (ewm-main-service)
+
+Реализована система комментариев к событиям с модерацией.
+
+Модели:
+- `Comment` (связи с `User` и `Event`)
+- `CommentStatus` = `PENDING | APPROVED | REJECTED`
+
+Основные DTO:
+- `NewCommentDto { text }`
+- `CommentDto { id, text, author(UserShortDto), event(Long), created, updated, status }`
+- `UpdateCommentRequest { text }`
+- `UpdateCommentAdminRequest { status }` где `status` ∈ {`APPROVED`,`REJECTED`}
+
+Эндпоинты:
+- Публичные:
+  - `GET /events/{eventId}/comments` — одобренные комментарии события (пагинация `from,size`)
+  - `GET /events/comments/search?text=...` — поиск одобренных комментариев по тексту
+- Приватные (для пользователя `userId`):
+  - `POST /users/{userId}/events/{eventId}/comments` — создать комментарий (статус `PENDING`)
+  - `GET /users/{userId}/comments` — список своих комментариев
+  - `PATCH /users/{userId}/comments/{commentId}` — обновить комментарий в статусе `PENDING`
+  - `DELETE /users/{userId}/comments/{commentId}` — удалить комментарий в статусе `PENDING`
+- Административные:
+  - `GET /admin/comments` — список комментариев в статусе `PENDING`
+  - `PATCH /admin/comments/{commentId}` — модерация (`APPROVED`/`REJECTED`)
+  - `DELETE /admin/comments/{commentId}` — удалить любой комментарий
+
+Примеры запросов:
+
 ```bash
-curl -X POST http://localhost:9090/hit \
+# Создание комментария
+curl -X POST "http://localhost:8080/users/1/events/10/comments" \
   -H "Content-Type: application/json" \
-  -d '{
-    "app": "ewm-main-service",
-    "uri": "/events/1",
-    "ip": "192.168.1.100",
-    "timestamp": "2024-01-15 14:30:00"
-  }'
+  -d '{"text":"Отличное событие!"}'
+
+# Получение одобренных комментариев события
+curl "http://localhost:8080/events/10/comments?from=0&size=10"
+
+# Модерация админом
+curl -X PATCH "http://localhost:8080/admin/comments/5" \
+  -H "Content-Type: application/json" \
+  -d '{"status":"APPROVED"}'
 ```
 
-#### Получение статистики
+Ограничения и валидация:
+- Комментировать можно только опубликованные события
+- Длина текста 1..2000 символов
+- Редактирование/удаление пользователем — только в статусе `PENDING`
+- Публично видны только `APPROVED`
+
+Интеграция со статистикой: основные публичные/приватные админ-эндпоинты сохраняют хиты через `StatsService`.
+
+## Сервис статистики (ewm-stats)
+
+Основные эндпоинты:
+- `POST /hit` — сохранить обращение
+- `GET /stats` — получить статистику за период (`start`,`end`,`uris`,`unique`)
+
+Пример:
 ```bash
-curl "http://localhost:9090/stats?start=2024-01-15%2000:00:00&end=2024-01-15%2023:59:59&unique=false"
+curl -X POST http://localhost:9090/hit -H "Content-Type: application/json" -d '{
+  "app":"ewm-main-service", "uri":"/events/10", "ip":"127.0.0.1", "timestamp":"2024-01-15 14:30:00"
+}'
 ```
-
-## API Endpoints
-
-### POST /hit
-Сохраняет информацию о запросе к эндпоинту.
-
-**Request Body:**
-```json
-{
-  "app": "ewm-main-service",
-  "uri": "/events/1",
-  "ip": "192.168.1.100",
-  "timestamp": "2024-01-15 14:30:00"
-}
-```
-
-### GET /stats
-Получает статистику по посещениям.
-
-**Query Parameters:**
-- `start` (required) - дата и время начала диапазона (yyyy-MM-dd HH:mm:ss)
-- `end` (required) - дата и время конца диапазона (yyyy-MM-dd HH:mm:ss)
-- `uris` (optional) - список URI для фильтрации
-- `unique` (optional) - учитывать только уникальные посещения (по IP)
-
-## Конфигурация
-
-Основные настройки находятся в `ewm-stats/src/main/resources/application.yml`:
-
-- **Порт:** 9090
-- **База данных:** PostgreSQL на localhost:5432
-- **База:** ewm_stats
-- **Пользователь:** postgres
-- **Пароль:** postgres
-
-## Docker запуск
-
-### 🚀 Быстрый запуск
-```bash
-# Запуск всех сервисов одной командой
-./start-docker.sh
-
-# Остановка сервисов
-./stop-docker.sh
-```
-
-### 🔧 Ручной запуск
-```bash
-# Сборка и запуск всех сервисов
-docker-compose up -d
-
-# Только база данных
-docker-compose up -d stats-db
-
-# Сборка и запуск сервиса
-docker-compose up --build stats-server
-```
-
-### 📊 Доступные сервисы после запуска:
-- **Сервис статистики**: http://localhost:9090
-- **Swagger UI**: http://localhost:9090/swagger-ui.html
-- **API Docs**: http://localhost:9090/api-docs
-- **Health Check**: http://localhost:9090/actuator/health
-- **PostgreSQL**: localhost:5432 (ewm_stats/postgres/postgres)
-
-### 📝 Полезные команды:
-```bash
-# Просмотр логов
-docker-compose logs -f stats-server
-
-# Статус сервисов
-docker-compose ps
-
-# Перезапуск сервиса
-docker-compose restart stats-server
-```
-
-Подробная документация по Docker: [DOCKER.md](DOCKER.md)
 
 ## Разработка
 
-### Добавление новых эндпоинтов
-
-1. Создайте DTO в модуле `ewm-stats-dto`
-2. Добавьте модель в `ewm-stats/src/main/java/ru/practicum/ewm/stats/model/`
-3. Создайте репозиторий в `ewm-stats/src/main/java/ru/practicum/ewm/stats/repository/`
-4. Добавьте сервис в `ewm-stats/src/main/java/ru/practicum/ewm/stats/service/`
-5. Создайте контроллер в `ewm-stats/src/main/java/ru/practicum/ewm/stats/controller/`
-
-### Тестирование
+### Сборка
 
 ```bash
-# Запуск тестов
+mvn clean install
+```
+
+### Тесты
+
+```bash
 mvn test
-
-# Запуск тестов с покрытием
-mvn test jacoco:report
 ```
 
-## Swagger UI
+### Checkstyle
 
-После запуска приложения Swagger UI будет доступен по адресу:
-- http://localhost:9090/swagger-ui.html - интерфейс Swagger UI
-- http://localhost:9090/api-docs - OpenAPI спецификация в JSON формате
-
-### Возможности Swagger UI:
-- Интерактивное тестирование API
-- Просмотр документации по всем эндпоинтам
-- Валидация запросов
-- Примеры запросов и ответов
-
-## Клиент для сервиса статистики
-
-Проект включает HTTP клиент для взаимодействия с сервисом статистики:
-
-### WebClient (рекомендуемый)
-```java
-@Autowired
-private StatsClient statsClient;
-
-// Сохранить статистику
-statsClient.saveHit("ewm-main-service", "/events/1", "192.168.1.100", LocalDateTime.now());
-
-// Получить статистику
-List<ViewStats> stats = statsClient.getStats(start, end, uris, false);
+```bash
+mvn -DskipTests checkstyle:check
 ```
 
-### Feign Client (альтернативный)
-```java
-@Autowired
-private StatsFeignClient statsFeignClient;
+## Docker
 
-// Использование аналогично WebClient
-EndpointHit hit = new EndpointHit(null, "ewm-main-service", "/events/1", "192.168.1.100", LocalDateTime.now());
-statsFeignClient.saveHit(hit);
-```
-
-### Конфигурация клиента
-```yaml
-stats:
-  client:
-    url: http://localhost:9090
-    connect-timeout: 5000
-    read-timeout: 10000
-```
-
-## Архитектурные улучшения
-
-### Модульная структура
-- **ewm-stats-dto**: Переиспользуемые DTO с валидацией и аннотациями Swagger
-- **ewm-stats-client**: Универсальный клиент с поддержкой WebClient и Feign
-- **ewm-stats**: Сервис с полной OpenAPI документацией
-
-### Технологический стек
-- **Spring Boot 3.3.2** - основной фреймворк
-- **Java 21** - стабильная LTS версия Java
-- **SpringDoc OpenAPI 3** - генерация документации API
-- **Spring WebFlux** - для реактивного HTTP клиента
-- **Spring Cloud OpenFeign** - декларативный HTTP клиент
-- **PostgreSQL 16.1** - база данных
-- **Docker** - контейнеризация
-
-### Особенности реализации
-- Автоконфигурация клиента через Spring Boot
-- Поддержка различных типов HTTP клиентов
-- Полная документация API через Swagger UI
-- Health checks для мониторинга
-- Утилиты для работы с HTTP запросами
-
-## Логи
-
-Логи приложения выводятся в консоль. Для настройки уровня логирования добавьте в `application.yml`:
-
-```yaml
-logging:
-  level:
-    ru.practicum.ewm.stats: DEBUG
-    org.springframework.web: DEBUG
-```
+Подробности и полезные команды — в файле [DOCKER.md](DOCKER.md).
