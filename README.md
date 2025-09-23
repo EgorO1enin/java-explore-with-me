@@ -1,3 +1,5 @@
+# Ссылка на пул реквест - https://github.com/EgorO1enin/java-explore-with-me/pull/6 
+
 # Explore With Me — Основной сервис и сервис статистики
 
 ## Описание проекта
