@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.stats.dto.EndpointHit;
 import ru.practicum.ewm.stats.dto.ViewStats;
+import ru.practicum.ewm.stats.exception.InvalidDateRangeException;
 import ru.practicum.ewm.stats.model.EndpointHitEntityModel;
 import ru.practicum.ewm.stats.repository.StatsRepository;
 
@@ -28,6 +29,11 @@ public class StatsService {
     }
 
     public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+        // Валидация: start не может быть больше end
+        if (start.isAfter(end)) {
+            throw new InvalidDateRangeException("Дата начала поиска не может быть позже даты окончания");
+        }
+
         if (Boolean.TRUE.equals(unique)) {
             return statsRepository.getUniqueStats(start, end, uris);
         } else {

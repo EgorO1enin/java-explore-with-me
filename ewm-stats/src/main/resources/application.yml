@@ -1,9 +1,6 @@
-server:
-  port: 9090
-
 spring:
   application:
-    name: stats-server
+    name: ewm-stats-service
   datasource:
     url: jdbc:postgresql://localhost:5432/ewm_stats
     username: e.olenin
@@ -17,19 +14,15 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-  jackson:
-    serialization:
-      write-dates-as-timestamps: false
-    deserialization:
-      fail-on-unknown-properties: false
-    date-format: yyyy-MM-dd'T'HH:mm:ss'Z'
-    time-zone: UTC
 
-stats:
-  client:
-    url: "http://localhost:9090"
-    connect-timeout: 5000
-    read-timeout: 10000
+server:
+  port: 9090
+
+logging:
+  level:
+    ru.practicum.ewm.stats: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
 
 management:
   endpoints:
@@ -39,40 +32,17 @@ management:
   endpoint:
     health:
       show-details: always
----
-# Профиль для Docker
-spring:
-  config:
-    activate:
-      on-profile: docker
-  datasource:
-    url: jdbc:postgresql://stats-db:5432/ewm_stats
-    username: postgres
-    password: postgres
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: false
-  jackson:
-    serialization:
-      write-dates-as-timestamps: false
-    deserialization:
-      fail-on-unknown-properties: false
-    date-format: yyyy-MM-dd'T'HH:mm:ss'Z'
-    time-zone: UTC
 
-stats:
-  client:
-    url: "http://localhost:9090"
-    connect-timeout: 5000
-    read-timeout: 10000
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
 
-logging:
-  level:
-    ru.practicum.ewm.stats: INFO
-    org.springframework.web: WARN
-    org.hibernate.SQL: WARN
+jackson:
+  serialization:
+    write-dates-as-timestamps: false
+  deserialization:
+    fail-on-unknown-properties: false
+  date-format: yyyy-MM-dd HH:mm:ss
+  time-zone: UTC

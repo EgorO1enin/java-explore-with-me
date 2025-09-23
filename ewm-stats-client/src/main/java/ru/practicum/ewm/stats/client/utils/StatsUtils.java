@@ -22,12 +22,12 @@ public class StatsUtils {
      * @return объект EndpointHit
      */
     public static EndpointHit createEndpointHit(HttpServletRequest request, String appName) {
-        EndpointHit endpointHit = new EndpointHit();
-        endpointHit.setApp(appName);
-        endpointHit.setUri(request.getRequestURI());
-        endpointHit.setIp(getClientIpAddress(request));
-        endpointHit.setTimestamp(LocalDateTime.now());
-        return endpointHit;
+        return EndpointHit.builder()
+                .app(appName)
+                .uri(request.getRequestURI())
+                .ip(getClientIpAddress(request))
+                .timestamp(LocalDateTime.now())
+                .build();
     }
 
     /**
@@ -38,12 +38,14 @@ public class StatsUtils {
      */
     public static String getClientIpAddress(HttpServletRequest request) {
         String xForwardedForHeader = request.getHeader("X-Forwarded-For");
-        if (xForwardedForHeader != null && !xForwardedForHeader.isEmpty() && !"unknown".equalsIgnoreCase(xForwardedForHeader)) {
+        if (xForwardedForHeader != null && !xForwardedForHeader.isEmpty() &&
+                !"unknown".equalsIgnoreCase(xForwardedForHeader)) {
             return xForwardedForHeader.split(",")[0].trim();
         }
 
         String xRealIpHeader = request.getHeader("X-Real-IP");
-        if (xRealIpHeader != null && !xRealIpHeader.isEmpty() && !"unknown".equalsIgnoreCase(xRealIpHeader)) {
+        if (xRealIpHeader != null && !xRealIpHeader.isEmpty() &&
+                !"unknown".equalsIgnoreCase(xRealIpHeader)) {
             return xRealIpHeader;
         }
 

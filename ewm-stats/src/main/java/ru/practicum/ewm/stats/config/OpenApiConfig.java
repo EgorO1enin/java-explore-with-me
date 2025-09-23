@@ -25,7 +25,8 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Explore With Me Stats Service API")
                         .description("API сервиса статистики для приложения \"Explore With Me\".\n\n" +
-                                "Сервис предназначен для сбора и анализа статистики посещений эндпоинтов основного сервиса.")
+                                "Сервис предназначен для сбора и анализа статистики посещений " +
+                                "эндпоинтов основного сервиса.")
                         .version("1.0")
                         .contact(new Contact()
                                 .name("Egor Olenin")
@@ -41,8 +42,10 @@ public class OpenApiConfig {
     }
 
     @Bean
-    public SwaggerUiConfigParameters swaggerUiConfigParameters(SwaggerUiConfigProperties swaggerUiConfigProperties) {
-        SwaggerUiConfigParameters parameters = new SwaggerUiConfigParameters(swaggerUiConfigProperties);
+    public SwaggerUiConfigParameters swaggerUiConfigParameters(
+            SwaggerUiConfigProperties swaggerUiConfigProperties) {
+        SwaggerUiConfigParameters parameters = new SwaggerUiConfigParameters(
+                swaggerUiConfigProperties);
         parameters.setPath("/swagger-ui.html");
         parameters.setTryItOutEnabled(true);
         parameters.setOperationsSorter("method");

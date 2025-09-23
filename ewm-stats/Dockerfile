@@ -15,14 +15,16 @@ COPY pom.xml .
 COPY ewm-stats-dto/pom.xml ewm-stats-dto/
 COPY ewm-stats-client/pom.xml ewm-stats-client/
 COPY ewm-stats/pom.xml ewm-stats/
+COPY ewm-main-service/pom.xml ewm-main-service/
 
 # Копирование исходного кода
 COPY ewm-stats-dto/src ewm-stats-dto/src
 COPY ewm-stats-client/src ewm-stats-client/src
 COPY ewm-stats/src ewm-stats/src
+COPY ewm-main-service/src ewm-main-service/src
 
 # Сборка проекта
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTestsты 
 
 # Финальный образ
 FROM openjdk:21-jdk-slim
