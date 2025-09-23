@@ -57,8 +57,6 @@ public class PrivateRequestController {
             @Parameter(description = "ID пользователя") @PathVariable Long userId,
             @Parameter(description = "ID запроса") @PathVariable Long requestId,
             HttpServletRequest request) {
-
-
         statsService.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
                 LocalDateTime.now());
         ParticipationRequestDto participationRequest = participationRequestService.cancelRequest(userId, requestId);
